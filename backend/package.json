@@ -1,0 +1,48 @@
+{
+  "name": "banglapay",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc --build",
+    "start": "node dist/index.js",
+    "dev": "nodemon"
+  },
+  "type": "commonjs",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "express-validator": "^7.2.0",
+    "firebase": "^11.0.0",
+    "firebase-admin": "^12.6.0",
+    "google-auth-library": "^9.14.2",
+    "google-spreadsheet": "^4.1.4",
+    "module-alias": "^2.2.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/module-alias": "^2.0.4",
+    "@types/node": "^22.7.7",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  },
+  "_moduleAliases": {
+    "@/utils": "dist/utils",
+    "@/middlewares": "dist/middlewares",
+    "@/models": "dist/models",
+    "@/exceptions": "dist/exceptions",
+    "@/controllers": "dist/controllers",
+    "@/constants": "dist/constants",
+    "@/services": "dist/services",
+    "@/repositories": "dist/repositories",
+    "@/routers": "dist/routers",
+    "@/configs": "dist/configs",
+    "@/errors": "dist/errors"
+  }
+}
