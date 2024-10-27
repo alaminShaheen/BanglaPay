@@ -17,7 +17,6 @@ import {
     FIREBASE_SERVICE_UNIVERSE_DOMAIN,
     FIREBASE_STORAGE_BUCKET
 } from "@/configs/config";
-import { initializeApp } from "firebase/app";
 import { cert, initializeApp as initializeAdminApp } from "firebase-admin/app";
 
 
@@ -46,7 +45,7 @@ const firebaseServiceConfig = {
 
 
 export function initFirebase() {
-    initializeApp(firebaseConfig);
+    // initializeApp(firebaseConfig);
     initializeAdminApp({ credential: cert(firebaseServiceConfig) });
     logging.log("Firebase initialized");
 }

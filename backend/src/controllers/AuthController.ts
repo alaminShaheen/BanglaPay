@@ -3,9 +3,9 @@ import { NextFunction, Request, Response } from "express";
 
 import { AuthService } from "@/services/AuthService";
 import { RegisterUserDto } from "@/models/dtos/RegisterUserDto";
-import { LoginRequestUserDto } from "@/models/dtos/LoginRequestUserDto";
+import { LoginRequestDto } from "@/models/dtos/LoginRequestDto";
 
-async function loginHandler(request: Request<{}, {}, LoginRequestUserDto>, response: Response, next: NextFunction) {
+async function loginHandler(request: Request<{}, {}, LoginRequestDto>, response: Response, next: NextFunction) {
     const errors = validationResult(request);
     if (!errors.isEmpty()) {
         response.status(400).json({ errors: errors.array() });

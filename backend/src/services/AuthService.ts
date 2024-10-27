@@ -1,4 +1,4 @@
-import { RegisterUserDto } from "@/models/dtos/RegisterUserDto";
+import { Response } from "express";
 import {
     createUserWithEmailAndPassword,
     getAuth,
@@ -6,20 +6,25 @@ import {
     sendPasswordResetEmail,
     signInWithEmailAndPassword
 } from "firebase/auth";
-import { LoginRequestUserDto } from "@/models/dtos/LoginRequestUserDto";
+import { getAuth as gAuth } from "firebase-admin/auth";
 import { AuthRepository } from "@/repositories/AuthRepository";
-import { Response } from "express";
-import { setCookie } from "@/utils/setCookie";
-import { User } from "@/models/User";
+import { RegisterUserDto } from "@/models/dtos/RegisterUserDto";
+import { LoginRequestDto } from "@/models/dtos/LoginRequestDto";
 import { ResetPasswordRequestDto } from "@/models/dtos/ResetPasswordRequestDto";
+import { LoginResponseDto } from "@/models/dtos/LoginResponseDto";
 
-async function login(userLoginInfo: LoginRequestUserDto, response: Response): Promise<User> {
+async function login(userLoginInfo: LoginRequestDto, response: Response): Promise<LoginResponseDto> {
     try {
         const firebaseAuth = getAuth();
         const userCredential = await signInWithEmailAndPassword(firebaseAuth, userLoginInfo.email, userLoginInfo.password);
         const accessToken = await userCredential.user.getIdToken();
-        setCookie(accessToken, response);
-        return await AuthRepository.getUser(userCredential.user.uid);
+
+        const user = await AuthRepository.getUser(userCredential.user.uid);
+        gAuth().createCustomToken(user.id, user);
+        return {
+            user,
+            accessToken
+        };
     } catch (error) {
         throw error;
     }
@@ -29,7 +34,6 @@ async function register(userInfo: RegisterUserDto) {
     try {
         const firebaseAuth = getAuth();
         const userCredentials = await createUserWithEmailAndPassword(firebaseAuth, userInfo.email, userInfo.password);
-        userCredentials.user;
         await sendEmailVerification(userCredentials.user);
 
         await AuthRepository.createUser({
@@ -57,5 +61,5 @@ async function resetPassword(resetInfo: ResetPasswordRequestDto) {
 export const AuthService = {
     login,
     register,
-    resetPassword,
+    resetPassword
 };
