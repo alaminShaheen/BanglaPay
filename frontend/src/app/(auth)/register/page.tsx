@@ -1,16 +1,19 @@
 "use client";
+
+import Link from "next/link";
+import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { AxiosError } from "axios";
+import { Eye, EyeOff, RefreshCcw } from "lucide-react";
 import React, { useCallback, useState } from "react";
-import { FirebaseError } from "@firebase/app";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
-import { RegisterForm } from "@/models/forms/RegisterForm";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { Eye, EyeOff, RefreshCcw } from "lucide-react";
-import { toast } from "sonner";
-import { createUserWithEmailAndPassword, getAuth, sendEmailVerification } from "firebase/auth";
+import { ErrorType } from "@/models/enums/ErrorType";
+import { RegisterForm } from "@/models/forms/RegisterForm";
+import { cn, toastDateFormat } from "@/lib/utils";
+import { register as registerUser } from "@/services/Register";
 
 const Register = () => {
     const {
@@ -33,37 +36,39 @@ const Register = () => {
     const onSubmit = useCallback(async (formData: RegisterForm) => {
         try {
             setLoading(true);
-            const firebaseAuth = getAuth();
-            const userCredentials = await createUserWithEmailAndPassword(firebaseAuth, formData.email, formData.password);
-            await sendEmailVerification(userCredentials.user);
+            await registerUser(formData);
 
-            toast(`An account verification link has been sent to your email`, {
-                description: `${new Intl.DateTimeFormat("en-US", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "2-digit"
-                }).format(new Date())} at ${new Intl.DateTimeFormat("en-US", {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true
-                }).format(new Date())}`,
+            toast.success(`An account verification link has been sent to your email`, {
+                description: toastDateFormat(new Date()),
                 action: {
                     label: "Close",
-                    onClick: () => console.log("Undo")
+                    onClick: () => null
                 }
             });
 
             reset();
         } catch (error) {
-            if (error instanceof FirebaseError) {
-                console.log(error.code);
-                if (error.code === "auth/invalid-email") {
-                    setError("email", { message: "Invalid email" });
-                } else if (error.code === "auth/email-already-in-use") {
-                    setError("email", { message: "Email is already in use" });
+            let errorMessage = "";
+            if (error instanceof AxiosError && error.response) {
+                if (error.response.data.errorType === ErrorType.FORM_ERROR) {
+                    Object.entries<string>(error.response.data.fieldErrors).forEach(([key, message]) => {
+                        setError(key as keyof RegisterForm, { message });
+                    });
+                    return;
+                } else {
+                    errorMessage = error.response.data.message;
                 }
+            } else {
+                errorMessage = (error as Error).message;
             }
+            toast.error(errorMessage, {
+                richColors: true,
+                description: toastDateFormat(new Date()),
+                action: {
+                    label: "Close",
+                    onClick: () => null
+                }
+            });
         } finally {
             setLoading(false);
         }

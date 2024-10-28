@@ -8,12 +8,14 @@ import { LoginRequestDto } from "@/models/dtos/LoginRequestDto";
 async function loginHandler(request: Request<{}, {}, LoginRequestDto>, response: Response, next: NextFunction) {
     const errors = validationResult(request);
     if (!errors.isEmpty()) {
+        // TODO: Throw AppValidationError
+        // throw new AppValidationError(400, "Login form errors", {})
         response.status(400).json({ errors: errors.array() });
         return;
     }
     try {
-        const user = await AuthService.login(request.body, response);
-        response.status(200).json(user);
+        const loginResponse = await AuthService.login(request.body, response);
+        response.status(200).json(loginResponse);
     } catch (error) {
         next(error);
     }

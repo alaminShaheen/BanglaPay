@@ -18,6 +18,7 @@ import {
     FIREBASE_STORAGE_BUCKET
 } from "@/configs/config";
 import { cert, initializeApp as initializeAdminApp } from "firebase-admin/app";
+import { initializeApp } from "firebase/app";
 
 
 const firebaseConfig = {
@@ -45,7 +46,7 @@ const firebaseServiceConfig = {
 
 
 export function initFirebase() {
-    // initializeApp(firebaseConfig);
+    initializeApp(firebaseConfig);
     initializeAdminApp({ credential: cert(firebaseServiceConfig) });
     logging.log("Firebase initialized");
 }

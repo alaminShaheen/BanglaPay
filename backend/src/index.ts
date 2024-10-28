@@ -4,11 +4,14 @@ import router from "@/routers/index";
 import logging from "@/utils/logging";
 import { initDatabase } from "./database";
 import { initFirebase } from "@/configs/firebaseConfig";
-import { SERVER_PORT } from "@/configs/config";
+import { CLIENT_ORIGIN, SERVER_PORT } from "@/configs/config";
 import { errorHandler } from "@/middlewares/errorHandler";
+import cors from "cors";
 
 const app = express();
+app.use(cors({origin: CLIENT_ORIGIN}))
 app.use(express.json());
+
 
 // rt.get("/hello", (req: Request, res: Response) => {
 //     logging.log("/hello")

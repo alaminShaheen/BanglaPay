@@ -17,7 +17,7 @@ async function createUser(userInfo: User) {
     }
 }
 
-async function getUser(userId: string): Promise<User> {
+async function getUser(userId: string): Promise<User | null> {
     try {
         const databaseInstance = getDatabaseInstance();
         await databaseInstance.loadInfo();
@@ -28,7 +28,7 @@ async function getUser(userId: string): Promise<User> {
         const user = userRows.find(userRow => userRow.get("id") === userId);
 
         if (!user) {
-            throw new AppError(400, "User not found");
+            return null;
         }
         return {
             email: user.get("email"),

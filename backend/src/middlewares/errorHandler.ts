@@ -9,7 +9,7 @@ export const errorHandler: ErrorRequestHandler = (error, request, response, next
             response.status(400).send({ message: "Email is already in use" });
         }
     } else if (error instanceof AppError) {
-        response.status(error.statusCode).send({ error: error.message });
+        response.status(error.statusCode).send({ message: error.message });
     }
     response.status(500).send({ message: "Internal Server Error" });
     return;

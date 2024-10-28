@@ -4,53 +4,53 @@ import {
     FacebookAuthProvider,
     getAuth,
     GoogleAuthProvider,
-    signInWithEmailAndPassword,
+    signInWithCustomToken,
     signInWithPopup
 } from "firebase/auth";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
+import { AxiosError } from "axios";
 import { BsFacebook } from "react-icons/bs";
 import { Eye, EyeOff, RefreshCcw } from "lucide-react";
 import React, { Fragment, useCallback, useState } from "react";
 
-import { cn } from "@/lib/utils";
+import { auth } from "@/firebaseConfig";
+import { login } from "@/services/Login";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/models/forms/LoginForm";
+import { ErrorType } from "@/models/enums/ErrorType";
 import { FirebaseError } from "@firebase/app";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { cn, toastDateFormat } from "@/lib/utils";
 
 
 const Register = () => {
     const { register, formState: { errors }, handleSubmit, setError, reset } = useForm<LoginForm>();
+    const { setAccessToken } = useAuthContext();
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+
 
     const onSubmit = useCallback(async (formData: LoginForm) => {
         try {
             setLoading(true);
 
-            const firebaseAuth = getAuth();
-            const userCredentials = await signInWithEmailAndPassword(firebaseAuth, formData.email, formData.password);
+            const response = await login(formData);
+            setAccessToken(response.data.accessToken);
+
+            const userCredentials = await signInWithCustomToken(auth, response.data.accessToken);
 
             if (!userCredentials.user.emailVerified) {
                 toast.error(`Email has not been verified`, {
                     richColors: true,
-                    description: `${new Intl.DateTimeFormat("en-US", {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "2-digit"
-                    }).format(new Date())} at ${new Intl.DateTimeFormat("en-US", {
-                        hour: "numeric",
-                        minute: "2-digit",
-                        hour12: true
-                    }).format(new Date())}`,
+                    description: toastDateFormat(new Date()),
                     action: {
                         label: "Close",
-                        onClick: () => console.log("Close")
+                        onClick: () => null
                     }
                 });
                 reset({ email: "", password: "" });
@@ -58,32 +58,30 @@ const Register = () => {
             }
             // const token = userCredentials.user.getIdToken();
             // TODO: Set authorization headers with the JWT token
-        } catch (error) {
+        } catch (error: unknown) {
+            let errorMessage = "";
             if (error instanceof FirebaseError) {
                 console.log(error.code);
-                if (error.code === "auth/invalid-email") {
-                    setError("email", { message: "Invalid email" });
-                } else if (error.code === "auth/invalid-credential") {
-                    console.log("hello");
-                    toast.error(`Invalid credentials entered`, {
-                        richColors: true,
-                        description: `${new Intl.DateTimeFormat("en-US", {
-                            weekday: "long",
-                            year: "numeric",
-                            month: "long",
-                            day: "2-digit"
-                        }).format(new Date())} at ${new Intl.DateTimeFormat("en-US", {
-                            hour: "numeric",
-                            minute: "2-digit",
-                            hour12: true
-                        }).format(new Date())}`,
-                        action: {
-                            label: "Close",
-                            onClick: () => console.log("Close")
-                        }
+            } else if (error instanceof AxiosError && error.response) {
+                if (error.response.data.errorType === ErrorType.FORM_ERROR) {
+                    Object.entries<string>(error.response.data.fieldErrors).forEach(([key, message]) => {
+                        setError(key as keyof LoginForm, { message });
                     });
+                    return;
+                } else {
+                    errorMessage = error.response.data.message;
                 }
+            } else {
+                errorMessage = (error as Error).message;
             }
+            toast.error(errorMessage, {
+                richColors: true,
+                description: toastDateFormat(new Date()),
+                action: {
+                    label: "Close",
+                    onClick: () => null
+                }
+            });
         } finally {
             setLoading(false);
         }
@@ -94,7 +92,8 @@ const Register = () => {
             const firebaseAuth = getAuth();
             const provider = new GoogleAuthProvider();
             const userCredentials = await signInWithPopup(firebaseAuth, provider);
-            console.log(userCredentials);
+            const accessToken = await userCredentials.user.getIdToken();
+            setAccessToken(accessToken);
         } catch (error) {
             if (error instanceof FirebaseError) {
                 console.log(error.code);
@@ -108,7 +107,8 @@ const Register = () => {
             const firebaseAuth = getAuth();
             const provider = new FacebookAuthProvider();
             const userCredentials = await signInWithPopup(firebaseAuth, provider);
-            console.log(userCredentials);
+            const accessToken = await userCredentials.user.getIdToken();
+            setAccessToken(accessToken);
         } catch (error) {
             if (error instanceof FirebaseError) {
                 console.log(error.code);
@@ -119,7 +119,6 @@ const Register = () => {
 
     return (
         <Fragment>
-
             <form className="flex flex-col gap-y-4" onSubmit={handleSubmit(onSubmit)}>
                 <div>
                     <Label htmlFor="email" className={cn({ "text-destructive": errors.email })}>Email</Label>
