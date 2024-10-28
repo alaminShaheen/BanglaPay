@@ -9,6 +9,7 @@ import React, { useCallback, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ROUTES } from "@/constants/Routes";
 import { Button } from "@/components/ui/button";
 import { ErrorType } from "@/models/enums/ErrorType";
 import { RegisterForm } from "@/models/forms/RegisterForm";
@@ -157,13 +158,13 @@ const Register = () => {
                     <span className="text-xs text-destructive">{errors.password.message}</span>
                 )}
             </div>
-            <Button variant="default" type="submit" className="w-full md:w-28 mx-auto" disabled={loading}>
+            <Button variant="default" type="submit" className="w-full md:w-28 mx-auto" disabled={loading} title="Register">
                 {loading && <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />}
                 Register
             </Button>
             <p className="text-xs">
                 Already have an account? {" "}
-                <Link href={"/login"} className="underline">Login</Link>
+                <Link href={ROUTES.LOGIN} className="underline">Login</Link>
             </p>
         </form>
     );

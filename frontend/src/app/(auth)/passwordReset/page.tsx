@@ -1,19 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { toast } from "sonner";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { RefreshCcw } from "lucide-react";
 import React, { useCallback, useState } from "react";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 
-import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { ROUTES } from "@/constants/Routes";
 import { Button } from "@/components/ui/button";
 import { FirebaseError } from "@firebase/app";
 import { PasswordResetForm } from "@/models/forms/PasswordResetForm";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { cn, toastDateFormat } from "@/lib/utils";
 
 const PasswordReset = () => {
     const {
@@ -35,22 +36,13 @@ const PasswordReset = () => {
 
             toast.success(`A password reset link has been sent to your email`, {
                 richColors: true,
-                description: `${new Intl.DateTimeFormat("en-US", {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "2-digit"
-                }).format(new Date())} at ${new Intl.DateTimeFormat("en-US", {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true
-                }).format(new Date())}`,
+                description: toastDateFormat(new Date()),
                 action: {
                     label: "Close",
                     onClick: () => console.log("Undo")
                 }
             });
-            router.push("/login");
+            router.push(ROUTES.LOGIN);
         } catch (error) {
             if (error instanceof FirebaseError) {
                 console.log(error.code);
@@ -85,7 +77,7 @@ const PasswordReset = () => {
             </Button>
             <p className="text-xs">
                 Have an account? {" "}
-                <Link href={"/login"} className="underline">Login</Link>
+                <Link href={ROUTES.LOGIN} className="underline">Login</Link>
             </p>
         </form>
     );

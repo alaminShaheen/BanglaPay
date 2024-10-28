@@ -18,10 +18,13 @@ import {
     DropdownMenuShortcut,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/constants/Routes";
 
 const Navbar = () => {
     const { resolvedTheme, setTheme } = useTheme();
     const { authenticated } = useAuthContext();
+    const router = useRouter();
 
 
     const onThemeChange = useCallback(() => {
@@ -31,6 +34,7 @@ const Navbar = () => {
     const onLogout = useCallback(async () => {
         try {
             await signOut(auth);
+            router.push(ROUTES.LOGIN);
         } catch (error) {
             console.error("Error signing out:", error);
         }
@@ -53,7 +57,7 @@ const Navbar = () => {
                 </Button>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild className="block md:hidden">
-                        <Button variant="ghost" size="icon" className="flex justify-center items-center">
+                        <Button variant="ghost" size="icon" className="flex justify-center items-center" title="Menu">
                             <Menu />
                         </Button>
                     </DropdownMenuTrigger>
@@ -97,7 +101,7 @@ const Navbar = () => {
                     {/*  TODO: Move to "Account" page  */}
                     {
                         authenticated &&
-                        <Button variant="destructive" onClick={onLogout}>
+                        <Button variant="destructive" onClick={onLogout} title="Logout">
                             <LogOut />
                             Logout
                         </Button>

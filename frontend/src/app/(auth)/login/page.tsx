@@ -11,6 +11,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
+import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { BsFacebook } from "react-icons/bs";
 import { Eye, EyeOff, RefreshCcw } from "lucide-react";
@@ -20,6 +21,7 @@ import { auth } from "@/firebaseConfig";
 import { login } from "@/services/Login";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { ROUTES } from "@/constants/Routes";
 import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/models/forms/LoginForm";
 import { ErrorType } from "@/models/enums/ErrorType";
@@ -31,6 +33,7 @@ import { cn, toastDateFormat } from "@/lib/utils";
 const Register = () => {
     const { register, formState: { errors }, handleSubmit, setError, reset } = useForm<LoginForm>();
     const { setAccessToken } = useAuthContext();
+    const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -56,6 +59,7 @@ const Register = () => {
                 reset({ email: "", password: "" });
                 return;
             }
+            router.push(ROUTES.SALARIES);
             // const token = userCredentials.user.getIdToken();
             // TODO: Set authorization headers with the JWT token
         } catch (error: unknown) {
@@ -138,7 +142,7 @@ const Register = () => {
                     <div className="flex justify-between">
                         <Label htmlFor="password"
                                className={cn({ "text-destructive": errors.password })}>Password</Label>
-                        <Link href="/passwordReset" className="underline text-xs">Forgot password?</Link>
+                        <Link href={ROUTES.PASSWORD_RESET} className="underline text-xs">Forgot password?</Link>
                     </div>
                     <div className="relative mt-1">
                         <Input
@@ -167,7 +171,7 @@ const Register = () => {
                         <span className="text-xs text-destructive">{errors.password.message}</span>
                     )}
                 </div>
-                <Button variant="default" type="submit" className="w-full md:w-1/3 mx-auto">
+                <Button variant="default" type="submit" className="w-full md:w-1/3 mx-auto" disabled={loading}>
                     {loading && <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />}
                     Login
                 </Button>
@@ -181,18 +185,18 @@ const Register = () => {
             </form>
 
             <div className="flex gap-4">
-                <Button variant="outline" className="mb-4 w-full" onClick={loginWithGoogle}>
+                <Button variant="outline" className="mb-4 w-full" onClick={loginWithGoogle} disabled={loading}>
                     <FcGoogle /> {" "} Google
                 </Button>
 
-                <Button variant="outline" className="mb-4 w-full" onClick={loginWithFacebook}>
+                <Button variant="outline" className="mb-4 w-full" onClick={loginWithFacebook} disabled={loading}>
                     <BsFacebook className="text-[#0765FF]" /> {" "} Facebook
                 </Button>
             </div>
 
             <p className="text-xs">
                 Don't have an account? {" "}
-                <Link href="/register" className="underline">Register</Link>
+                <Link href={ROUTES.REGISTER} className="underline">Register</Link>
             </p>
         </Fragment>
     );
