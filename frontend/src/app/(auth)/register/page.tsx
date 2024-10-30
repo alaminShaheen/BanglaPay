@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { AxiosError } from "axios";
 import { Eye, EyeOff, RefreshCcw } from "lucide-react";
 import React, { useCallback, useState } from "react";
 
@@ -11,8 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ROUTES } from "@/constants/Routes";
 import { Button } from "@/components/ui/button";
-import { ErrorType } from "@/models/enums/ErrorType";
 import { RegisterForm } from "@/models/forms/RegisterForm";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 import { cn, toastDateFormat } from "@/lib/utils";
 import { register as registerUser } from "@/services/Register";
 
@@ -33,6 +32,7 @@ const Register = () => {
     });
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+    const { handleErrors } = useErrorHandler();
 
     const onSubmit = useCallback(async (formData: RegisterForm) => {
         try {
@@ -49,31 +49,11 @@ const Register = () => {
 
             reset();
         } catch (error) {
-            let errorMessage = "";
-            if (error instanceof AxiosError && error.response) {
-                if (error.response.data.errorType === ErrorType.FORM_ERROR) {
-                    Object.entries<string>(error.response.data.fieldErrors).forEach(([key, message]) => {
-                        setError(key as keyof RegisterForm, { message });
-                    });
-                    return;
-                } else {
-                    errorMessage = error.response.data.message;
-                }
-            } else {
-                errorMessage = (error as Error).message;
-            }
-            toast.error(errorMessage, {
-                richColors: true,
-                description: toastDateFormat(new Date()),
-                action: {
-                    label: "Close",
-                    onClick: () => null
-                }
-            });
+            handleErrors<RegisterForm>(error, setError);
         } finally {
             setLoading(false);
         }
-    }, [reset]);
+    }, [reset, setError, handleErrors]);
 
     return (
         <form className="flex flex-col gap-y-4 w-full" onSubmit={handleSubmit(onSubmit)}>
@@ -158,7 +138,8 @@ const Register = () => {
                     <span className="text-xs text-destructive">{errors.password.message}</span>
                 )}
             </div>
-            <Button variant="default" type="submit" className="w-full md:w-28 mx-auto" disabled={loading} title="Register">
+            <Button variant="default" type="submit" className="w-full md:w-28 mx-auto" disabled={loading}
+                    title="Register">
                 {loading && <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />}
                 Register
             </Button>

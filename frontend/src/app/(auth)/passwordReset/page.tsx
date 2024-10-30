@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { FirebaseError } from "@firebase/app";
 import { PasswordResetForm } from "@/models/forms/PasswordResetForm";
 import { cn, toastDateFormat } from "@/lib/utils";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 const PasswordReset = () => {
     const {
@@ -27,6 +28,7 @@ const PasswordReset = () => {
     });
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const { handleErrors } = useErrorHandler();
 
     const onSubmit = useCallback(async (formData: PasswordResetForm) => {
         try {
@@ -45,15 +47,18 @@ const PasswordReset = () => {
             router.push(ROUTES.LOGIN);
         } catch (error) {
             if (error instanceof FirebaseError) {
-                console.log(error.code);
                 if (error.code === "auth/invalid-email") {
                     setError("email", { message: "Invalid email" });
+                } else {
+                    handleErrors<PasswordResetForm>(error, setError);
                 }
+            } else {
+                handleErrors<PasswordResetForm>(error, setError);
             }
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [handleErrors, setError, router]);
 
     return (
         <form className="flex flex-col gap-y-4" onSubmit={handleSubmit(onSubmit)}>

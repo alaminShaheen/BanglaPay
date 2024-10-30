@@ -1,12 +1,10 @@
 import {
     createUserWithEmailAndPassword,
     getAuth,
-    GoogleAuthProvider,
     sendEmailVerification,
     sendPasswordResetEmail,
     signInWithEmailAndPassword,
-    signInWithPopup,
-    User
+    User as FirebaseUser
 } from "firebase/auth";
 import { Response } from "express";
 import { FirebaseError } from "firebase/app";
@@ -45,7 +43,7 @@ async function login(userLoginInfo: LoginRequestDto, response: Response): Promis
     } catch (error) {
         if (error instanceof FirebaseError) {
             if (error.code === "auth/invalid-email") {
-                throw new AppValidationError(400, "Login form errors", { "email": "Invalid email" });
+                throw new AppValidationError(400, "Login form errors", { "email": ["Invalid email"] });
             } else if (error.code === "auth/invalid-credential") {
                 throw new AppError(400, "Invalid credentials provided");
             } else throw error;
@@ -77,16 +75,48 @@ async function register(userInfo: RegisterUserDto) {
     } catch (error: any) {
         if (error instanceof FirebaseError) {
             if (error.code === "auth/invalid-email") {
-                throw new AppValidationError(400, "Register form errors", { "email": "Invalid email" });
+                throw new AppValidationError(400, "Register form errors", { "email": ["Invalid email"] });
             } else if (error.code === "auth/email-already-in-use") {
-                throw new AppValidationError(400, "Register form errors", { "email": "Email is already in use" });
+                throw new AppValidationError(400, "Register form errors", { "email": ["Email is already in use"] });
             } else throw error;
         }
         throw error;
     }
 }
 
-async function sendVerificationEmail(user: User) {
+async function registerOAuthUser(firebaseUser: FirebaseUser) {
+    try {
+        const user = await AuthRepository.getUser(firebaseUser.uid);
+
+        const newUser = {
+            email: firebaseUser.email || "",
+            firstname: firebaseUser.displayName?.split(" ")[0] || (firebaseUser as any).name?.split(" ")[0] || "",
+            lastname: firebaseUser.displayName?.split(" ")[1] || (firebaseUser as any).name?.split(" ")[1] || "",
+            id: firebaseUser.uid
+        };
+
+        if (!user) {
+            return await AuthRepository.createUser(newUser);
+        } else {
+            const updatedUser = await AuthRepository.updateUser(newUser);
+            if (!updatedUser) {
+                throw new AppError(400, "User does not exist");
+            }
+            return updatedUser;
+        }
+    } catch (error: any) {
+        if (error instanceof FirebaseError) {
+            if (error.code === "auth/invalid-email") {
+                throw new AppValidationError(400, "Register form errors", { "email": ["Invalid email"] });
+            } else if (error.code === "auth/email-already-in-use") {
+                throw new AppValidationError(400, "Register form errors", { "email": ["Email is already in use"] });
+            } else throw error;
+        }
+        throw error;
+    }
+}
+
+async function sendVerificationEmail(user: FirebaseUser) {
     try {
         await sendEmailVerification(user);
         return;
@@ -108,5 +138,6 @@ async function resetPassword(resetInfo: ResetPasswordRequestDto) {
 export const AuthService = {
     login,
     register,
-    resetPassword
+    resetPassword,
+    registerOAuthUser
 };

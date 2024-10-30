@@ -1,41 +1,74 @@
+import { GoogleSpreadsheetRow } from "google-spreadsheet";
 import { getDatabaseInstance } from "../database";
-import { DATABASE_CONSTANTS } from "@/constants/databaseConstants";
+
 import { User } from "@/models/User";
-import { AppError } from "@/errors/AppError";
+import { DATABASE_CONSTANTS } from "@/constants/databaseConstants";
 
 
 async function createUser(userInfo: User) {
     try {
-        const databaseInstance = getDatabaseInstance();
-        await databaseInstance.loadInfo();
-        const usersTable = databaseInstance.sheetsByTitle[DATABASE_CONSTANTS.USERS_TABLE];
+        const usersTable = await getUserTable();
 
-        await usersTable.addRow(userInfo);
-        return;
+        const userRecord: GoogleSpreadsheetRow<User> = await usersTable.addRow(userInfo);
+        return serializeUserToJson(userRecord);
     } catch (error: any) {
         throw error;
     }
 }
 
-async function getUser(userId: string): Promise<User | null> {
+async function getUserTable() {
     try {
         const databaseInstance = getDatabaseInstance();
         await databaseInstance.loadInfo();
-        const usersTable = databaseInstance.sheetsByTitle[DATABASE_CONSTANTS.USERS_TABLE];
+        return databaseInstance.sheetsByTitle[DATABASE_CONSTANTS.USERS_TABLE];
+    } catch (error) {
+        throw error;
+    }
+}
 
-        const userRows = await usersTable.getRows();
+async function findUserRecord(userId: string) {
+    const usersTable = await getUserTable();
 
-        const user = userRows.find(userRow => userRow.get("id") === userId);
+    const userRows = await usersTable.getRows<User>();
+
+    return userRows.find(userRow => userRow.get("id") === userId) ?? null;
+}
+
+async function getUser(userId: string) {
+    try {
+        const user = await findUserRecord(userId);
 
         if (!user) {
             return null;
         }
-        return {
-            email: user.get("email"),
-            firstname: user.get("firstname"),
-            lastname: user.get("lastname"),
-            id: user.get("id")
-        };
+        return serializeUserToJson(user);
+    } catch (error: any) {
+        throw error;
+    }
+}
+
+function serializeUserToJson(user: GoogleSpreadsheetRow<User>): User {
+    return {
+        email: user.get("email"),
+        firstname: user.get("firstname"),
+        lastname: user.get("lastname"),
+        id: user.get("id")
+    };
+}
+
+async function updateUser(updatedUserInfo: User) {
+    try {
+        const user = await findUserRecord(updatedUserInfo.id);
+
+        if (!user) {
+            return null;
+        }
+
+        user.assign(updatedUserInfo);
+
+        await user.save();
+
+        return serializeUserToJson(user);
     } catch (error: any) {
         throw error;
     }
@@ -43,5 +76,6 @@ async function getUser(userId: string): Promise<User | null> {
 
 export const AuthRepository = {
     createUser,
-    getUser
+    getUser,
+    updateUser
 };

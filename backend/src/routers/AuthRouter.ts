@@ -4,10 +4,12 @@ import { AuthController } from "@/controllers/AuthController";
 import { loginUserValidator } from "@/middlewares/validators/LoginUserValidator";
 import { registerUserValidator } from "@/middlewares/validators/RegisterUserValidator";
 import { resetPasswordValidator } from "@/middlewares/validators/ResetPasswordValidator";
+import { verifyAuthentication } from "@/middlewares/verifyAuthentication";
 
 // register all auth routes
 export default (router: Router) => {
 	router.post('/auth/login', loginUserValidator(), AuthController.loginHandler);
 	router.post('/auth/register', registerUserValidator(), AuthController.registerHandler);
+	router.post('/auth/oauth/login', verifyAuthentication, AuthController.registerOAuthHandler);
 	router.post('/auth/reset-password', resetPasswordValidator(), AuthController.registerPasswordReset);
 }

@@ -1,24 +1,23 @@
 "use client";
 
-import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { onAuthStateChanged, User, UserCredential } from "firebase/auth";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
+
 import { auth } from "@/firebaseConfig";
+import { addAxiosAuthHeader } from "@/lib/axiosInstance";
 
 type AuthContextType = {
     appLoading: boolean;
     user: User | null;
     authenticated: boolean;
-    accessToken: string;
-    setAccessToken: Dispatch<SetStateAction<string>>;
+    onUserLogin: (userCredentials: UserCredential) => Promise<void>;
 };
 
 const APP_CONTEXT_DEFAULT_VALUES: AuthContextType = {
     appLoading: false,
     user: null,
     authenticated: false,
-    accessToken: "",
-    setAccessToken: () => {
-    }
+    onUserLogin: async (userCredentials: UserCredential) => {}
 };
 export const AuthContext = createContext<AuthContextType>(APP_CONTEXT_DEFAULT_VALUES);
 
@@ -31,7 +30,7 @@ export const AuthContextProvider = (props: AppContextProviderProps) => {
     const [user, setUser] = useState(APP_CONTEXT_DEFAULT_VALUES.user);
     const [appLoading, setAppLoading] = useState(false);
     const [authenticated, setAuthenticated] = useState(APP_CONTEXT_DEFAULT_VALUES.authenticated);
-    const [accessToken, setAccessToken] = useState(APP_CONTEXT_DEFAULT_VALUES.accessToken);
+    const [accessToken, setAccessToken] = useState("");
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -42,14 +41,28 @@ export const AuthContextProvider = (props: AppContextProviderProps) => {
         return () => unsubscribe();
     }, []);
 
+    useEffect(() => {
+        if (accessToken) {
+            addAxiosAuthHeader(accessToken);
+        }
+    }, [accessToken]);
+
+    const onUserLogin = useCallback(async (userCredentials: UserCredential) => {
+        const token = await userCredentials.user?.getIdToken();
+        if (token) {
+            addAxiosAuthHeader(token);
+            setAccessToken(token);
+            setUser(userCredentials.user);
+        }
+    }, []);
+
     return (
         <AuthContext.Provider
             value={{
                 user,
                 appLoading,
                 authenticated,
-                accessToken,
-                setAccessToken
+                onUserLogin
             }}
         >
             {children}

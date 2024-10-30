@@ -1,4 +1,3 @@
-// spreadsheet key is the long id in the sheets URL
 import {GoogleSpreadsheet} from "google-spreadsheet";
 import {GOOGLE_SHEET_ID} from "@/configs/config";
 import {JWT} from "google-auth-library";
@@ -23,20 +22,10 @@ export function initDatabase() {
 	} catch (error) {
 		logging.error(error);
 	}
-
-	// await doc.loadInfo(); // loads document properties and worksheets
-	// console.log(doc.title);
-	// await doc.updateProperties({ title: 'renamed doc' });
-
-	// const sheet = doc.sheetsByIndex[0]; // or use `doc.sheetsById[id]` or `doc.sheetsByTitle[title]`
-	// console.log(sheet.title);
-	// console.log(sheet.rowCount);
 }
 
 export function getDatabaseInstance() {
-	logging.log(databaseInstance);
 	if (!databaseInstance) {
-
 		initDatabase();
 	}
 	return databaseInstance;

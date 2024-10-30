@@ -1,22 +1,15 @@
 "use client";
 
-import {
-    FacebookAuthProvider,
-    getAuth,
-    GoogleAuthProvider,
-    signInWithCustomToken,
-    signInWithPopup
-} from "firebase/auth";
 import Link from "next/link";
-import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
+import { FaGithub } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import { AxiosError } from "axios";
-import { BsFacebook } from "react-icons/bs";
 import { Eye, EyeOff, RefreshCcw } from "lucide-react";
 import React, { Fragment, useCallback, useState } from "react";
+import { getAuth, GithubAuthProvider, GoogleAuthProvider, signInWithCustomToken, signInWithPopup } from "firebase/auth";
 
+import { cn } from "@/lib/utils";
 import { auth } from "@/firebaseConfig";
 import { login } from "@/services/Login";
 import { Label } from "@/components/ui/label";
@@ -24,15 +17,15 @@ import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/constants/Routes";
 import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/models/forms/LoginForm";
-import { ErrorType } from "@/models/enums/ErrorType";
-import { FirebaseError } from "@firebase/app";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { cn, toastDateFormat } from "@/lib/utils";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
+import { thirdPartyLogin } from "@/services/ThirdPartyLogin";
 
 
 const Register = () => {
     const { register, formState: { errors }, handleSubmit, setError, reset } = useForm<LoginForm>();
-    const { setAccessToken } = useAuthContext();
+    const { onUserLogin } = useAuthContext();
+    const { handleErrors } = useErrorHandler();
     const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -43,83 +36,49 @@ const Register = () => {
             setLoading(true);
 
             const response = await login(formData);
-            setAccessToken(response.data.accessToken);
 
             const userCredentials = await signInWithCustomToken(auth, response.data.accessToken);
+            onUserLogin(userCredentials);
 
             if (!userCredentials.user.emailVerified) {
-                toast.error(`Email has not been verified`, {
-                    richColors: true,
-                    description: toastDateFormat(new Date()),
-                    action: {
-                        label: "Close",
-                        onClick: () => null
-                    }
-                });
-                reset({ email: "", password: "" });
-                return;
+                throw new Error("Email has not been verified");
             }
+
+            reset({ email: "", password: "" });
             router.push(ROUTES.SALARIES);
-            // const token = userCredentials.user.getIdToken();
-            // TODO: Set authorization headers with the JWT token
         } catch (error: unknown) {
-            let errorMessage = "";
-            if (error instanceof FirebaseError) {
-                console.log(error.code);
-            } else if (error instanceof AxiosError && error.response) {
-                if (error.response.data.errorType === ErrorType.FORM_ERROR) {
-                    Object.entries<string>(error.response.data.fieldErrors).forEach(([key, message]) => {
-                        setError(key as keyof LoginForm, { message });
-                    });
-                    return;
-                } else {
-                    errorMessage = error.response.data.message;
-                }
-            } else {
-                errorMessage = (error as Error).message;
-            }
-            toast.error(errorMessage, {
-                richColors: true,
-                description: toastDateFormat(new Date()),
-                action: {
-                    label: "Close",
-                    onClick: () => null
-                }
-            });
+            handleErrors<LoginForm>(error, setError);
         } finally {
             setLoading(false);
         }
-    }, [reset]);
+    }, [reset, setError, handleErrors, router]);
 
     const loginWithGoogle = useCallback(async () => {
         try {
             const firebaseAuth = getAuth();
             const provider = new GoogleAuthProvider();
             const userCredentials = await signInWithPopup(firebaseAuth, provider);
-            const accessToken = await userCredentials.user.getIdToken();
-            setAccessToken(accessToken);
+            await onUserLogin(userCredentials);
+            await thirdPartyLogin();
+            router.push(ROUTES.SALARIES);
         } catch (error) {
-            if (error instanceof FirebaseError) {
-                console.log(error.code);
-            }
             console.log(error);
+            handleErrors<LoginForm>(error, setError);
         }
-    }, []);
+    }, [handleErrors, onUserLogin, router]);
 
-    const loginWithFacebook = useCallback(async () => {
+    const loginWithGithub = useCallback(async () => {
         try {
             const firebaseAuth = getAuth();
-            const provider = new FacebookAuthProvider();
+            const provider = new GithubAuthProvider();
             const userCredentials = await signInWithPopup(firebaseAuth, provider);
-            const accessToken = await userCredentials.user.getIdToken();
-            setAccessToken(accessToken);
+            await onUserLogin(userCredentials);
+            await thirdPartyLogin();
+            router.push(ROUTES.SALARIES);
         } catch (error) {
-            if (error instanceof FirebaseError) {
-                console.log(error.code);
-            }
-            console.log(error);
+            handleErrors<LoginForm>(error, setError);
         }
-    }, []);
+    }, [onUserLogin, router, handleErrors]);
 
     return (
         <Fragment>
@@ -189,8 +148,8 @@ const Register = () => {
                     <FcGoogle /> {" "} Google
                 </Button>
 
-                <Button variant="outline" className="mb-4 w-full" onClick={loginWithFacebook} disabled={loading}>
-                    <BsFacebook className="text-[#0765FF]" /> {" "} Facebook
+                <Button variant="outline" className="mb-4 w-full" onClick={loginWithGithub} disabled={loading}>
+                    <FaGithub /> {" "} Github
                 </Button>
             </div>
 

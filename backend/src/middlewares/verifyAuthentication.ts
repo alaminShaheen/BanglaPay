@@ -1,20 +1,23 @@
-import { NextFunction, Request, Response } from "express";
-import { APP_CONSTANTS } from "@/constants/appConstants";
-import { AppError } from "@/errors/AppError";
 import { getAuth } from "firebase-admin/auth";
+import { NextFunction, Request, Response } from "express";
+
+import { AppError } from "@/errors/AppError";
 
 
 export async function verifyAuthentication(req: Request, res: Response, next: NextFunction) {
-    const token = req.cookies[APP_CONSTANTS.AUTH_COOKIE];
+    const authHeader = req.headers.authorization;
 
-    if (!token) {
-        throw new AppError(403, "User unauthorized");
-    }
+    if (authHeader) {
+        const token = authHeader.split(" ")[1];
 
-    try {
-        req.user = await getAuth().verifyIdToken(token);
-        next();
-    } catch (error) {
-        next(error);
+        try {
+            req.userInfo = await getAuth().verifyIdToken(token);
+        } catch (error) {
+            next(error);
+        }
+    } else {
+        next(new AppError(403, "Forbidden request"));
+        return;
     }
+    next();
 }
