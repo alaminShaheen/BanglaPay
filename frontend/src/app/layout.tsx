@@ -41,7 +41,7 @@ export default function RootLayout(props: RootLayoutProps) {
         >
             <AuthContextProvider>
                 <Navbar />
-                <div className="bg-gray-100 dark:bg-zinc-900 h-full flex-1">
+                <div className="bg-gray-100 dark:bg-zinc-900 flex-1">
                     {children}
                 </div>
                 <Toaster />

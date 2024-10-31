@@ -6,7 +6,7 @@ import { Protected } from "@/components/Protected";
 const Salaries = () => {
     return (
         <div>
-            This is protected
+            
         </div>
     );
 };
