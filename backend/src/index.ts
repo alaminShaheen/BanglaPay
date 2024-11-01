@@ -20,7 +20,7 @@ initDatabase();
 initFirebase();
 
 app.use(loggingHandler);
-app.use("/api", appRouter);
+app.use("/api", appRouter)
 
 app.use(errorHandler);
 

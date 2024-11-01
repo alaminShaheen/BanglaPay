@@ -18,6 +18,7 @@ export const errorHandler: ErrorRequestHandler = (error, request, response, next
             fieldErrors: error.fieldErrors
         });
     }
+    logging.error(error);
     response.status(500).send({ message: "Internal Server Error" });
     return;
 };

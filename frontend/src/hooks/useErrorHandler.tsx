@@ -21,6 +21,7 @@ export const useErrorHandler = () => {
     }, []);
 
     const handleGenericErrors = useCallback((error: Error) => {
+        console.log(error);
         toast.error(error.message, {
             richColors: true,
             description: toastDateFormat(new Date()),

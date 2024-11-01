@@ -9,7 +9,7 @@ export function handleFormValidationErrors(request: Request) {
     if (!errors.isEmpty()) {
         throw new AppValidationError(
             400,
-            "Login validation errors",
+            "Validation errors",
             errors.array().reduce((errorRecord, error) => {
                 const key = error.path;
                 if (!(key in errorRecord)) {

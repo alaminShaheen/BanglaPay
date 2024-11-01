@@ -22,7 +22,8 @@
     "firebase-admin": "^12.6.0",
     "google-auth-library": "^9.14.2",
     "google-spreadsheet": "^4.1.4",
-    "module-alias": "^2.2.3"
+    "module-alias": "^2.2.3",
+    "uuid": "^11.0.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

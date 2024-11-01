@@ -1,12 +1,13 @@
 "use client";
 
 import { Loader2Icon, XIcon } from "lucide-react";
-import React, { useCallback, useState } from "react";
+import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import React, { MouseEvent, useCallback, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { SelectOption } from "@/models/SelectOption";
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 
@@ -15,16 +16,19 @@ type CreatableSelectProps<T> = {
     value: T;
     onOptionSelect: (value: T) => void;
     className?: string;
+    onCreate: (query: string) => Promise<void>;
 }
 
 const matches = (str: string, query: string, exact: boolean = false) => {
     return exact ? str.toLowerCase() === query.toLowerCase() : str.toLowerCase().includes(query.toLowerCase());
 };
 
+
 const CreatableSelect = <T extends {}>(props: CreatableSelectProps<T>) => {
-    const { options, onOptionSelect, value, className } = props;
+    const { options, onOptionSelect, value, className, onCreate } = props;
+    const { handleErrors } = useErrorHandler();
     const [open, setOpen] = useState(false);
-    const [loading, setLoading] = useState();
+    const [loading, setLoading] = useState(false);
     const [selectedOption, setSelectedOption] = useState<SelectOption<T> | undefined>(() => options.find((option) => option.value === value));
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -35,6 +39,33 @@ const CreatableSelect = <T extends {}>(props: CreatableSelectProps<T>) => {
     const onQueryChange = useCallback((newQuery: string) => {
         setSearchQuery(newQuery);
     }, []);
+
+    const onCancelCreateOption = useCallback(async (event: MouseEvent<SVGElement>) => {
+        event.stopPropagation();
+        setSearchQuery("");
+    }, []);
+
+    const onOptionClick = useCallback((option: SelectOption<T>) => {
+        onOptionSelect(option.value);
+        setSelectedOption(option);
+        setOpen(false);
+    }, [onOptionSelect]);
+
+    const onCreateOption = useCallback(async () => {
+        try {
+            setLoading(true);
+            const newOption: SelectOption<T> = {
+                value: searchQuery as unknown as T,
+                label: searchQuery
+            };
+            await onCreate(searchQuery);
+            onOptionClick(newOption);
+        } catch (error) {
+            handleErrors(error);
+        } finally {
+            setLoading(false);
+        }
+    }, [searchQuery, handleErrors, onOptionClick]);
 
     return (
         <Popover
@@ -74,22 +105,12 @@ const CreatableSelect = <T extends {}>(props: CreatableSelectProps<T>) => {
                                     <CommandItem
                                         key={searchQuery}
                                         value={searchQuery}
-                                        onSelect={() => {
-                                            const newOption: SelectOption<T> = {
-                                                value: searchQuery as unknown as T,
-                                                label: searchQuery.toLowerCase()
-                                            };
-                                            options.push(newOption);
-                                            setOpen(false);
-                                        }}
+                                        onSelect={onCreateOption}
                                     >
                                         Create "{searchQuery}"
                                         <XIcon
                                             className="ml-auto h-4 w-4 cursor-pointer"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setSearchQuery("");
-                                            }}
+                                            onClick={onCancelCreateOption}
                                         />
                                     </CommandItem>
                                 )}
@@ -98,11 +119,7 @@ const CreatableSelect = <T extends {}>(props: CreatableSelectProps<T>) => {
                                 <CommandItem
                                     key={String(option.value)}
                                     value={String(option.value)}
-                                    onSelect={() => {
-                                        onOptionSelect(option.value);
-                                        setSelectedOption(option);
-                                        setOpen(false);
-                                    }}
+                                    onSelect={() => onOptionClick(option)}
                                 >
                                     {option.label}
                                     <CheckIcon

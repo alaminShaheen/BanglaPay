@@ -38,7 +38,7 @@ const Register = () => {
             const response = await login(formData);
 
             const userCredentials = await signInWithCustomToken(auth, response.data.accessToken);
-            onUserLogin(userCredentials);
+            await onUserLogin(userCredentials.user);
 
             if (!userCredentials.user.emailVerified) {
                 throw new Error("Email has not been verified");
@@ -58,7 +58,7 @@ const Register = () => {
             const firebaseAuth = getAuth();
             const provider = new GoogleAuthProvider();
             const userCredentials = await signInWithPopup(firebaseAuth, provider);
-            await onUserLogin(userCredentials);
+            await onUserLogin(userCredentials.user);
             await thirdPartyLogin();
             router.push(ROUTES.SALARIES);
         } catch (error) {
@@ -72,7 +72,7 @@ const Register = () => {
             const firebaseAuth = getAuth();
             const provider = new GithubAuthProvider();
             const userCredentials = await signInWithPopup(firebaseAuth, provider);
-            await onUserLogin(userCredentials);
+            await onUserLogin(userCredentials.user);
             await thirdPartyLogin();
             router.push(ROUTES.SALARIES);
         } catch (error) {

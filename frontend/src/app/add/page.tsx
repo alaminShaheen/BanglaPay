@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowBigLeft } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import Select from "@/components/Select";
@@ -12,15 +12,20 @@ import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/constants/Routes";
 import { Gender } from "@/models/enums/Gender";
 import { Button } from "@/components/ui/button";
+import { Company } from "@/models/Company";
 import { Textarea } from "@/components/ui/textarea";
+import { Protected } from "@/components/Protected";
 import { Seniority } from "@/models/enums/Seniority";
 import { SENIORITY } from "@/constants/selectOptions/SENIORITY";
 import { EDUCATION } from "@/constants/selectOptions/EDUCATION";
+import { addCompany } from "@/services/AddCompany";
 import { OfferStatus } from "@/models/enums/OfferStatus";
 import CreatableSelect from "@/components/CreatableSelect";
 import { SelectOption } from "@/models/SelectOption";
+import { getCompanies } from "@/services/GetCompanies";
 import { ContractType } from "@/models/enums/ContractType";
 import { CONTRACT_TYPE } from "@/constants/selectOptions/CONTRACT_TYPE";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 import { CompensationForm } from "@/models/forms/CompensationForm";
 import { HighestEducation } from "@/models/enums/HighestEducation";
 import { JOB_FAMILY_OPTIONS } from "@/constants/selectOptions/JOB_FAMILY";
@@ -29,20 +34,46 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 const Add = () => {
     const {
         register,
-        watch,
         formState: { errors },
         handleSubmit,
-        setError,
-        reset,
         control
     } = useForm<CompensationForm>();
     const [loading, setLoading] = useState(false);
+    const { handleErrors } = useErrorHandler();
+    const [companies, setCompanies] = useState<Company[]>([]);
 
     const onSubmit = useCallback((data: CompensationForm) => {
-
     }, []);
 
-    console.log(watch());
+    const onAddCompany = useCallback(async (companyName: string) => {
+        try {
+            setLoading(true);
+            const newCompanyOption = await addCompany({ name: companyName });
+            setCompanies(prev => [...prev, newCompanyOption.data]);
+        } catch (error) {
+            console.log(error);
+            handleErrors(new Error("An error occurred when creating a new company"));
+        } finally {
+            setLoading(false);
+        }
+    }, [handleErrors]);
+
+    const fetchCompanies = useCallback(async () => {
+        try {
+            setLoading(true);
+            const companyData = await getCompanies();
+            setCompanies(companyData.data);
+        } catch (error) {
+            console.log(error);
+            handleErrors(new Error("An error occurred when creating a new company"));
+        } finally {
+            setLoading(false);
+        }
+    }, [handleErrors]);
+
+    useEffect(() => {
+        void fetchCompanies();
+    }, [fetchCompanies]);
 
     return (
         <div className="max-w-lg mx-auto border border-border rounded-md p-4 my-10 bg-background">
@@ -60,9 +91,10 @@ const Add = () => {
                         render={({ field: { value, onChange } }) => {
                             return (
                                 <CreatableSelect<string>
+                                    onCreate={onAddCompany}
                                     value={value}
                                     onOptionSelect={onChange}
-                                    options={[]}
+                                    options={companies.map(company => ({ label: company.name, value: company.name }))}
                                     className="mt-2"
                                 />
                             );
@@ -436,10 +468,10 @@ const Add = () => {
                     </RadioGroup>
                 </div>
 
-                <Button type="submit" className="mt-2">Submit</Button>
+                <Button type="submit" className="mt-2" disabled={loading}>Submit</Button>
             </form>
         </div>
     );
 };
 
-export default Add;
+export default Protected(Add);

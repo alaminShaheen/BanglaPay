@@ -1,7 +1,7 @@
 "use client";
 
-import { onAuthStateChanged, User, UserCredential } from "firebase/auth";
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import { auth } from "@/firebaseConfig";
 import { addAxiosAuthHeader } from "@/lib/axiosInstance";
@@ -10,14 +10,15 @@ type AuthContextType = {
     appLoading: boolean;
     user: User | null;
     authenticated: boolean;
-    onUserLogin: (userCredentials: UserCredential) => Promise<void>;
+    onUserLogin: (user: User) => Promise<void>;
 };
 
 const APP_CONTEXT_DEFAULT_VALUES: AuthContextType = {
     appLoading: false,
     user: null,
     authenticated: false,
-    onUserLogin: async (userCredentials: UserCredential) => {}
+    onUserLogin: async (user: User) => {
+    }
 };
 export const AuthContext = createContext<AuthContextType>(APP_CONTEXT_DEFAULT_VALUES);
 
@@ -28,31 +29,29 @@ type AppContextProviderProps = {
 export const AuthContextProvider = (props: AppContextProviderProps) => {
     const { children } = props;
     const [user, setUser] = useState(APP_CONTEXT_DEFAULT_VALUES.user);
-    const [appLoading, setAppLoading] = useState(false);
+    const [appLoading, setAppLoading] = useState(true);
+    const authFetchCountRef = useRef<number>(1);
     const [authenticated, setAuthenticated] = useState(APP_CONTEXT_DEFAULT_VALUES.authenticated);
     const [accessToken, setAccessToken] = useState("");
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setUser(user);
             setAuthenticated(!!user);
-            setAppLoading(false);
+            if (user) {
+                await onUserLogin(user);
+            }
+            setAppLoading(authFetchCountRef.current >= 2);
         });
         return () => unsubscribe();
     }, []);
 
-    useEffect(() => {
-        if (accessToken) {
-            addAxiosAuthHeader(accessToken);
-        }
-    }, [accessToken]);
-
-    const onUserLogin = useCallback(async (userCredentials: UserCredential) => {
-        const token = await userCredentials.user?.getIdToken();
+    const onUserLogin = useCallback(async (user: User) => {
+        const token = await user?.getIdToken();
         if (token) {
             addAxiosAuthHeader(token);
             setAccessToken(token);
-            setUser(userCredentials.user);
+            setUser(user);
         }
     }, []);
 
