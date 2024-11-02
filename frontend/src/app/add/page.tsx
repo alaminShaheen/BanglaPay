@@ -106,8 +106,9 @@ const Add = () => {
                 </div>
 
                 <div>
-                    <Label htmlFor="officeCity" className={cn({ "text-destructive": errors.officeCity })}>Office
-                        City</Label>
+                    <Label htmlFor="officeCity" className={cn({ "text-destructive": errors.officeCity })}>
+                        Office City
+                    </Label>
                     <Input
                         className={cn("border mt-2", {
                             "border-border": !errors.officeCity,
@@ -121,9 +122,7 @@ const Add = () => {
                     )}
                 </div>
 
-
                 <h3 className="text-lg font-bold">Position details</h3>
-
 
                 <div>
                     <Label htmlFor="jobTitle" className={cn({ "text-destructive": errors.jobTitle })}>
@@ -184,7 +183,7 @@ const Add = () => {
                         {...register("yearsOfExperience", {
                             required: "This is required",
                             valueAsNumber: true,
-                            min: { value: 1, message: "Years of experience should be a positive integer" }
+                            min: { value: 0, message: "Years of experience should be a positive integer" }
                         })} />
                     {errors.yearsOfExperience && (
                         <span className="text-xs text-destructive">{errors.yearsOfExperience.message}</span>
@@ -376,19 +375,27 @@ const Add = () => {
 
                     <div className="w-1/2">
                         <Label
-                            htmlFor="signOnBonus"
+                            htmlFor="offerStatus"
                             className={cn({ "text-destructive": errors.signOnBonus })}
                         >
                             Is your offer new or existing?
                         </Label>
                         <RadioGroup defaultValue={OfferStatus.NEW} className="flex gap-4 items-center mt-2">
                             <div className="flex items-center space-x-2">
-                                <RadioGroupItem value={OfferStatus.NEW} id="new" {...register("signOnBonus")} />
+                                <RadioGroupItem
+                                    value={OfferStatus.NEW}
+                                    defaultChecked={true}
+                                    id="new"
+                                    {...register("offerStatus")}
+                                />
                                 <Label htmlFor="new">New</Label>
                             </div>
                             <div className="flex items-center space-x-2">
-                                <RadioGroupItem value={OfferStatus.EXISTING}
-                                                id="exisiting" {...register("signOnBonus")} />
+                                <RadioGroupItem
+                                    value={OfferStatus.EXISTING}
+                                    id="exisiting"
+                                    {...register("offerStatus")}
+                                />
                                 <Label htmlFor="exisiting">Existing</Label>
                             </div>
                         </RadioGroup>
