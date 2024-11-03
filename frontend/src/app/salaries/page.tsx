@@ -20,6 +20,8 @@ const Salaries = () => {
     }, []);
 
 
+
+
     return (
         <div className="container mx-auto p-4 my-10">
             <div className="flex flex-col md:flex-row mx-auto gap-4 items-center justify-center">
@@ -31,16 +33,14 @@ const Salaries = () => {
                     <LevelsDropdown/>
                     <YoeDropdown onApply={onApply}/>
                 </div>
-                <Button className="font-bold h-7 text-xs">
+                <Button className="font-bold h-7 text-xs" variant="expandIcon" Icon={Plus} iconPlacement="left">
                     <Link href={ROUTES.ADD} className="flex items-center gap-2">
-                        <Plus />
                         Add Compensation
                     </Link>
                 </Button>
             </div>
 
             <div className="bg-background rounded-md my-5">
-
                 <DataTable columns={columns} data={[]} />
             </div>
         </div>

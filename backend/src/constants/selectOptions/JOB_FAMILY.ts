@@ -1,6 +1,6 @@
 import { GroupedSelectOption, SelectOption } from "@/models/SelectOption";
 
-export const JOB_FAMILY_OPTIONS: (SelectOption<string> | GroupedSelectOption<string>)[] = [
+export const JOB_FAMILY: (SelectOption<string> | GroupedSelectOption<string>)[] = [
     {
         label: "Software Engineering", options: [
             { value: "eng_generic", label: "Software Engineer" },

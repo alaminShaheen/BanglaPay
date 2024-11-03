@@ -16,19 +16,17 @@ import { Company } from "@/models/Company";
 import { Textarea } from "@/components/ui/textarea";
 import { Protected } from "@/components/Protected";
 import { Seniority } from "@/models/enums/Seniority";
-import { SENIORITY } from "@/constants/selectOptions/SENIORITY";
-import { EDUCATION } from "@/constants/selectOptions/EDUCATION";
 import { addCompany } from "@/services/AddCompany";
 import { OfferStatus } from "@/models/enums/OfferStatus";
 import CreatableSelect from "@/components/CreatableSelect";
 import { SelectOption } from "@/models/SelectOption";
 import { getCompanies } from "@/services/GetCompanies";
 import { ContractType } from "@/models/enums/ContractType";
-import { CONTRACT_TYPE } from "@/constants/selectOptions/CONTRACT_TYPE";
+import { getFormOptions } from "@/services/GetFormOptions";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
 import { CompensationForm } from "@/models/forms/CompensationForm";
 import { HighestEducation } from "@/models/enums/HighestEducation";
-import { JOB_FAMILY_OPTIONS } from "@/constants/selectOptions/JOB_FAMILY";
+import { FormOptionsResponse } from "@/models/services/FormOptionsResponse";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const Add = () => {
@@ -41,6 +39,7 @@ const Add = () => {
     const [loading, setLoading] = useState(false);
     const { handleErrors } = useErrorHandler();
     const [companies, setCompanies] = useState<Company[]>([]);
+    const [selectOptions, setSelectOptions] = useState<FormOptionsResponse>();
 
     const onSubmit = useCallback((data: CompensationForm) => {
     }, []);
@@ -71,13 +70,27 @@ const Add = () => {
         }
     }, [handleErrors]);
 
+    const fetchFormOptions = useCallback(async () => {
+        try {
+            setLoading(true);
+            const formOptionsResponse = await getFormOptions();
+            setSelectOptions(formOptionsResponse.data);
+        } catch (error) {
+            console.log(error);
+            handleErrors(error);
+        } finally {
+            setLoading(false);
+        }
+    }, [handleErrors]);
+
     useEffect(() => {
         void fetchCompanies();
-    }, [fetchCompanies]);
+        void fetchFormOptions();
+    }, [fetchCompanies, fetchFormOptions]);
 
     return (
         <div className="max-w-lg mx-auto border border-border rounded-md p-4 my-10 bg-background">
-            <Button variant="link" className="p-0 text-primary">
+            <Button variant="linkHover2" className="p-0 text-primary">
                 <Link href={ROUTES.SALARIES} className="flex items-center">
                     <ArrowBigLeft /> Back
                 </Link>
@@ -100,9 +113,12 @@ const Add = () => {
                             );
                         }}
                         name="company"
-                        rules={{ required: "This is required" }}
+                        rules={{ required: "This field is required" }}
                         control={control}
                     />
+                    {errors.company && (
+                        <span className="text-xs text-destructive">{errors.company.message}</span>
+                    )}
                 </div>
 
                 <div>
@@ -116,14 +132,13 @@ const Add = () => {
                         })}
                         id="officeCity"
                         type="text"
-                        {...register("officeCity", { required: "This is required" })} />
+                        {...register("officeCity", { required: "This field is required" })} />
                     {errors.officeCity && (
                         <span className="text-xs text-destructive">{errors.officeCity.message}</span>
                     )}
                 </div>
 
                 <h3 className="text-lg font-bold">Position details</h3>
-
                 <div>
                     <Label htmlFor="jobTitle" className={cn({ "text-destructive": errors.jobTitle })}>
                         Job Title
@@ -135,7 +150,7 @@ const Add = () => {
                         })}
                         id="jobTitle"
                         type="text"
-                        {...register("jobTitle", { required: "This is required" })}
+                        {...register("jobTitle", { required: "This field is required" })}
                     />
                     {errors.jobTitle && (
                         <span className="text-xs text-destructive">{errors.jobTitle.message}</span>
@@ -152,13 +167,13 @@ const Add = () => {
                                 <Select<string>
                                     value={value}
                                     onChange={onChange}
-                                    options={JOB_FAMILY_OPTIONS}
+                                    options={selectOptions?.jobFamily || []}
                                     className="mt-2"
                                 />
                             );
                         }}
                         name="jobFocus"
-                        rules={{ required: "This is required" }}
+                        rules={{ required: "This field is required" }}
                         control={control}
                     />
                     {errors.jobFocus && (
@@ -181,7 +196,7 @@ const Add = () => {
                         id="yearsOfExperience"
                         type="number"
                         {...register("yearsOfExperience", {
-                            required: "This is required",
+                            required: "This field is required",
                             valueAsNumber: true,
                             min: { value: 0, message: "Years of experience should be a positive integer" }
                         })} />
@@ -202,13 +217,13 @@ const Add = () => {
                                 <Select<Seniority>
                                     value={value}
                                     onChange={onChange}
-                                    options={SENIORITY}
+                                    options={selectOptions?.seniority || []}
                                     className="mt-2"
                                 />
                             );
                         }}
                         name="seniority"
-                        rules={{ required: "This is required" }}
+                        rules={{ required: "This field is required" }}
                         control={control}
                     />
                     {errors.seniority && (
@@ -217,8 +232,8 @@ const Add = () => {
                 </div>
 
 
-                <div className="flex gap-4 items-center w-full justify-between">
-                    <div className="w-1/2">
+                <div className="flex flex-col md:flex-row gap-4 items-center w-full justify-between">
+                    <div className="w-full md:w-1/2">
                         <Label
                             htmlFor="contractType"
                             className={cn({ "text-destructive": errors.contractType })}
@@ -231,20 +246,20 @@ const Add = () => {
                                     <Select<ContractType>
                                         value={value}
                                         onChange={onChange}
-                                        options={CONTRACT_TYPE}
+                                        options={selectOptions?.contractType || []}
                                         className="mt-2 w-full"
                                     />
                                 );
                             }}
                             name="contractType"
-                            rules={{ required: "This is required" }}
+                            rules={{ required: "This field is required" }}
                             control={control}
                         />
                         {errors.contractType && (
                             <span className="text-xs text-destructive">{errors.contractType.message}</span>
                         )}
                     </div>
-                    <div className="w-1/2">
+                    <div className="w-full md:w-1/2">
                         <Label
                             htmlFor="yearOfCompensation"
                             className={cn({ "text-destructive": errors.yearOfCompensation })}
@@ -267,7 +282,7 @@ const Add = () => {
                                 );
                             }}
                             name="yearOfCompensation"
-                            rules={{ required: "This is required" }}
+                            rules={{ required: "This field is required" }}
                             control={control}
                         />
                         {errors.yearOfCompensation && (
@@ -297,8 +312,8 @@ const Add = () => {
 
                 <h3 className="text-lg font-bold">Compensation details</h3>
 
-                <div className="flex gap-4 items-center w-full justify-between">
-                    <div className="w-1/2">
+                <div className="flex flex-col md:flex-row gap-4 items-center w-full justify-between">
+                    <div className="w-full md:w-1/2">
                         <Label
                             htmlFor="baseSalary"
                             className={cn({ "text-destructive": errors.baseSalary })}
@@ -313,7 +328,7 @@ const Add = () => {
                             id="baseSalary"
                             type="number"
                             {...register("baseSalary", {
-                                required: "This is required",
+                                required: "This field is required",
                                 valueAsNumber: true,
                                 min: { value: 1, message: "Base salary should be a positive integer" }
                             })}
@@ -322,7 +337,7 @@ const Add = () => {
                             <span className="text-xs text-destructive">{errors.baseSalary.message}</span>
                         )}
                     </div>
-                    <div className="w-1/2">
+                    <div className="w-full md:w-1/2">
                         <Label
                             htmlFor="annualBonus"
                             className={cn({ "text-destructive": errors.annualBonus })}
@@ -337,7 +352,6 @@ const Add = () => {
                             id="annualBonus"
                             type="number"
                             {...register("annualBonus", {
-                                required: "This is required",
                                 valueAsNumber: true,
                                 min: { value: 1, message: "Annual bonus should be a positive integer" }
                             })}
@@ -363,7 +377,6 @@ const Add = () => {
                             id="signOnBonus"
                             type="number"
                             {...register("signOnBonus", {
-                                required: "This is required",
                                 valueAsNumber: true,
                                 min: { value: 1, message: "Sign-on bonus should be a positive integer" }
                             })}
@@ -437,18 +450,14 @@ const Add = () => {
                                 <Select<HighestEducation>
                                     value={value}
                                     onChange={onChange}
-                                    options={EDUCATION}
+                                    options={selectOptions?.education || []}
                                     className="mt-2 w-full"
                                 />
                             );
                         }}
                         name="highestEducation"
-                        rules={{ required: "This is required" }}
                         control={control}
                     />
-                    {errors.highestEducation && (
-                        <span className="text-xs text-destructive">{errors.highestEducation.message}</span>
-                    )}
                 </div>
 
                 <div className="">

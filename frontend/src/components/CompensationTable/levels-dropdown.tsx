@@ -25,7 +25,9 @@ const LevelsDropdown = () => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="default" className="rounded-md font-bold h-7 text-xs">Filter by Levels <ChevronsUpDown /></Button>
+                <Button className="rounded-md font-bold h-7 text-xs">
+                    Filter by Levels <ChevronsUpDown />
+                </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 p-2">
                 <DropdownMenuGroup>
@@ -38,7 +40,7 @@ const LevelsDropdown = () => {
                             "Executive (VP, C-level)"
                         ].map((item, index) => {
                             return (
-                                <DropdownMenuItem onClick={(event) => {
+                                <DropdownMenuItem key={item} onClick={(event) => {
                                     event.preventDefault();
                                     onItemToggle(index)
                                 }}>

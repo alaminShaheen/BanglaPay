@@ -5,7 +5,12 @@ import { addCompanyValidator } from "@/middlewares/validators/AddCompanyValidato
 import { verifyAuthentication } from "@/middlewares/verifyAuthentication";
 
 // register all auth routes
-export default (router: Router) => {
-    router.get("/company", verifyAuthentication, CompanyController.getCompaniesHandler);
-    router.post("/company/add", verifyAuthentication, addCompanyValidator(), CompanyController.addCompanyHandler);
+export default (router: Router, baseApiUrl: string = "/") => {
+    const companyRouter = Router();
+
+    companyRouter.get("/", verifyAuthentication, CompanyController.getCompaniesHandler);
+    companyRouter.post("/add", verifyAuthentication, addCompanyValidator(), CompanyController.addCompanyHandler);
+
+    router.use(baseApiUrl, companyRouter);
+    return router;
 }
