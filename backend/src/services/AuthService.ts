@@ -7,8 +7,7 @@ import {
     User as FirebaseUser
 } from "firebase/auth";
 import { Response } from "express";
-import { FirebaseError } from "firebase/app";
-import { getAuth as firebaseAdminAuth } from "firebase-admin/auth";
+import { FirebaseAuthError, getAuth as firebaseAdminAuth } from "firebase-admin/auth";
 
 import { AppError } from "@/errors/AppError";
 import { AuthRepository } from "@/repositories/AuthRepository";
@@ -41,10 +40,10 @@ async function login(userLoginInfo: LoginRequestDto, response: Response): Promis
             accessToken
         };
     } catch (error) {
-        if (error instanceof FirebaseError) {
-            if (error.code === "auth/invalid-email") {
+        if (error instanceof FirebaseAuthError) {
+            if (error.code.includes("invalid-email")) {
                 throw new AppValidationError(400, "Login form errors", { "email": ["Invalid email"] });
-            } else if (error.code === "auth/invalid-credential") {
+            } else if (error.code.includes("invalid-credential") || error.code.includes("user-not-found")) {
                 throw new AppError(400, "Invalid credentials provided");
             } else throw error;
         }
@@ -65,7 +64,6 @@ async function register(userInfo: RegisterUserDto) {
         const firebaseAuth = getAuth();
         const userCredentials = await createUserWithEmailAndPassword(firebaseAuth, userInfo.email, userInfo.password);
         await sendVerificationEmail(userCredentials.user);
-
         await AuthRepository.createUser({
             email: userInfo.email,
             firstname: userInfo.firstname,
@@ -73,10 +71,10 @@ async function register(userInfo: RegisterUserDto) {
             id: userCredentials.user.uid
         });
     } catch (error: any) {
-        if (error instanceof FirebaseError) {
-            if (error.code === "auth/invalid-email") {
+        if (error instanceof FirebaseAuthError) {
+            if (error.code.includes("invalid-email")) {
                 throw new AppValidationError(400, "Register form errors", { "email": ["Invalid email"] });
-            } else if (error.code === "auth/email-already-in-use") {
+            } else if (error.code.includes("email-already-in-use")) {
                 throw new AppValidationError(400, "Register form errors", { "email": ["Email is already in use"] });
             } else throw error;
         }
@@ -105,10 +103,10 @@ async function registerOAuthUser(firebaseUser: FirebaseUser) {
             return updatedUser;
         }
     } catch (error: any) {
-        if (error instanceof FirebaseError) {
-            if (error.code === "auth/invalid-email") {
+        if (error instanceof FirebaseAuthError) {
+            if (error.code.includes("invalid-email")) {
                 throw new AppValidationError(400, "Register form errors", { "email": ["Invalid email"] });
-            } else if (error.code === "auth/email-already-in-use") {
+            } else if (error.code.includes("email-already-in-use")) {
                 throw new AppValidationError(400, "Register form errors", { "email": ["Email is already in use"] });
             } else throw error;
         }

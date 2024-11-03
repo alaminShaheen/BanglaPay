@@ -38,25 +38,22 @@ export const useErrorHandler = () => {
             if (error.response.data.errorType === ErrorType.FORM_ERROR && setFormValidationError) {
                 handleFormValidationErrors(error.response.data, setFormValidationError);
             } else {
-                handleGenericErrors(error.response.data.message);
+                handleGenericErrors(error.response.data);
             }
         } else if (error instanceof FirebaseError) {
             console.log(error.code);
             if (
-                [
-                    "auth/popup-closed-by-user",
-                    "auth/cancelled-popup-request"
-                ]
-                    .includes(error.code)
+                error.code.includes("popup-closed-by-user") ||
+                error.code.includes("cancelled-popup-request")
             ) {
                 return;
-            } else if (error.code === "auth/invalid-email") {
+            } else if (error.code.includes("invalid-email")) {
                 if (setFormValidationError) {
                     setFormValidationError("email" as Path<TFieldValues>, { message: "Invalid email" });
                 } else {
                     handleGenericErrors(new Error("Invalid email"));
                 }
-            } else if (error.code === "auth/account-exists-with-different-credential") {
+            } else if (error.code.includes("account-exists-with-different-credential")) {
                 handleGenericErrors(new Error("An account with that email is already linked to this application"));
             } else {
                 handleGenericErrors(error);
@@ -64,7 +61,7 @@ export const useErrorHandler = () => {
         } else {
             handleGenericErrors(error as Error);
         }
-    }, []);
+    }, [handleGenericErrors, handleFormValidationErrors]);
 
     return { handleErrors };
 };

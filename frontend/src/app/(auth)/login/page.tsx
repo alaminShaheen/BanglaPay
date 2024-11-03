@@ -22,7 +22,7 @@ import { useErrorHandler } from "@/hooks/useErrorHandler";
 import { thirdPartyLogin } from "@/services/ThirdPartyLogin";
 
 
-const Register = () => {
+const Login = () => {
     const { register, formState: { errors }, handleSubmit, setError, reset } = useForm<LoginForm>();
     const { onUserLogin } = useAuthContext();
     const { handleErrors } = useErrorHandler();
@@ -161,4 +161,4 @@ const Register = () => {
     );
 };
 
-export default Register;
+export default Login;
