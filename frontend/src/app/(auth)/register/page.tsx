@@ -11,9 +11,8 @@ import { Label } from "@/components/ui/label";
 import { ROUTES } from "@/constants/Routes";
 import { Button } from "@/components/ui/button";
 import { RegisterForm } from "@/models/forms/RegisterForm";
-import { useErrorHandler } from "@/hooks/useErrorHandler";
 import { cn, toastDateFormat } from "@/lib/utils";
-import { register as registerUser } from "@/services/Register";
+import { useRegisterMutation } from "@/hooks/mutations/useRegisterMutation";
 
 const Register = () => {
     const {
@@ -31,29 +30,24 @@ const Register = () => {
         }
     });
     const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const { handleErrors } = useErrorHandler();
+
+    const onRegisterSuccess = useCallback(async () => {
+        toast.success(`An account verification link has been sent to your email`, {
+            description: toastDateFormat(new Date()),
+            action: {
+                label: "Close",
+                onClick: () => null
+            }
+        });
+
+        reset();
+    }, [reset]);
+
+    const { mutate, isPending } = useRegisterMutation({ setError, onRegisterSuccess });
 
     const onSubmit = useCallback(async (formData: RegisterForm) => {
-        try {
-            setLoading(true);
-            await registerUser(formData);
-
-            toast.success(`An account verification link has been sent to your email`, {
-                description: toastDateFormat(new Date()),
-                action: {
-                    label: "Close",
-                    onClick: () => null
-                }
-            });
-
-            reset();
-        } catch (error) {
-            handleErrors<RegisterForm>(error, setError);
-        } finally {
-            setLoading(false);
-        }
-    }, [reset, setError, handleErrors]);
+        mutate(formData);
+    }, [mutate]);
 
     return (
         <form className="flex flex-col gap-y-4 w-full" onSubmit={handleSubmit(onSubmit)}>
@@ -138,9 +132,9 @@ const Register = () => {
                     <span className="text-xs text-destructive">{errors.password.message}</span>
                 )}
             </div>
-            <Button variant="default" type="submit" className="w-full md:w-28 mx-auto" disabled={loading}
+            <Button variant="default" type="submit" className="w-full md:w-28 mx-auto" disabled={isPending}
                     title="Register">
-                {loading && <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />}
+                {isPending && <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />}
                 Register
             </Button>
             <p className="text-xs">

@@ -20,9 +20,9 @@ type SelectProps<T> = {
 
 
 const Select = <T extends {}>(props: SelectProps<T>) => {
-    const { options, onChange, value, className, placeholder } = props;
+    const { options, onChange, className, placeholder } = props;
     return (
-        <SelectComponent>
+        <SelectComponent onValueChange={(value) => onChange(value as unknown as T)}>
             <SelectTrigger className={className}>
                 <SelectValue placeholder={placeholder ?? "Select an option"} />
             </SelectTrigger>
@@ -38,7 +38,6 @@ const Select = <T extends {}>(props: SelectProps<T>) => {
                                         className="ml-2"
                                         key={String(option.value)}
                                         value={String(option.value)}
-                                        onClick={() => onChange(option.value)}
                                     >
                                         {option.label}
                                     </SelectItem>
@@ -49,7 +48,6 @@ const Select = <T extends {}>(props: SelectProps<T>) => {
                             return <SelectItem
                                 key={String(selectOption.value)}
                                 value={String(selectOption.value)}
-                                onClick={() => onChange(selectOption.value)}
                             >
                                 {selectOption.label}
                             </SelectItem>;

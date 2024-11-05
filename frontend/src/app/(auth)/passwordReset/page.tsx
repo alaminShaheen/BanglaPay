@@ -5,17 +5,15 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { RefreshCcw } from "lucide-react";
-import React, { useCallback, useState } from "react";
-import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import React, { useCallback } from "react";
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/constants/Routes";
 import { Button } from "@/components/ui/button";
-import { FirebaseError } from "@firebase/app";
 import { PasswordResetForm } from "@/models/forms/PasswordResetForm";
 import { cn, toastDateFormat } from "@/lib/utils";
-import { useErrorHandler } from "@/hooks/useErrorHandler";
+import { usePasswordResetMutation } from "@/hooks/mutations/usePasswordResetMutation";
 
 const PasswordReset = () => {
     const {
@@ -26,39 +24,25 @@ const PasswordReset = () => {
     } = useForm<PasswordResetForm>({
         defaultValues: { email: "" }
     });
-    const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const { handleErrors } = useErrorHandler();
+
+    const onPasswordResetSuccess = useCallback(() => {
+        toast.success(`A password reset link has been sent to your email`, {
+            richColors: true,
+            description: toastDateFormat(new Date()),
+            action: {
+                label: "Close",
+                onClick: () => console.log("Undo")
+            }
+        });
+        router.push(ROUTES.LOGIN);
+    }, [router]);
+
+    const { mutate, isPending } = usePasswordResetMutation({ onPasswordResetSuccess, setError });
 
     const onSubmit = useCallback(async (formData: PasswordResetForm) => {
-        try {
-            setLoading(true);
-            const firebaseAuth = getAuth();
-            await sendPasswordResetEmail(firebaseAuth, formData.email);
-
-            toast.success(`A password reset link has been sent to your email`, {
-                richColors: true,
-                description: toastDateFormat(new Date()),
-                action: {
-                    label: "Close",
-                    onClick: () => console.log("Undo")
-                }
-            });
-            router.push(ROUTES.LOGIN);
-        } catch (error) {
-            if (error instanceof FirebaseError) {
-                if (error.code === "auth/invalid-email") {
-                    setError("email", { message: "Invalid email" });
-                } else {
-                    handleErrors<PasswordResetForm>(error, setError);
-                }
-            } else {
-                handleErrors<PasswordResetForm>(error, setError);
-            }
-        } finally {
-            setLoading(false);
-        }
-    }, [handleErrors, setError, router]);
+        mutate(formData);
+    }, [mutate]);
 
     return (
         <form className="flex flex-col gap-y-4" onSubmit={handleSubmit(onSubmit)}>
@@ -76,8 +60,8 @@ const PasswordReset = () => {
                     <span className="text-xs text-destructive">{errors.email.message}</span>
                 )}
             </div>
-            <Button variant="default" type="submit" className="w-full md:w-1/3 mx-auto">
-                {loading && <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />}
+            <Button variant="default" type="submit" className="w-full md:w-1/3 mx-auto" disabled={isPending}>
+                {isPending && <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />}
                 Reset Password
             </Button>
             <p className="text-xs">

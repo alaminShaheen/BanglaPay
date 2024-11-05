@@ -10,6 +10,8 @@ import { SelectOption } from "@/models/SelectOption";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import AlertModal from "@/components/AlertModal";
+import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 type CreatableSelectProps<T> = {
     options: SelectOption<T>[];
@@ -31,6 +33,7 @@ const CreatableSelect = <T extends {}>(props: CreatableSelectProps<T>) => {
     const [loading, setLoading] = useState(false);
     const [selectedOption, setSelectedOption] = useState<SelectOption<T> | undefined>(() => options.find((option) => option.value === value));
     const [searchQuery, setSearchQuery] = useState("");
+    const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
 
     const toggleDropdown = useCallback(() => {
         setOpen(prev => !prev);
@@ -40,7 +43,7 @@ const CreatableSelect = <T extends {}>(props: CreatableSelectProps<T>) => {
         setSearchQuery(newQuery);
     }, []);
 
-    const onCancelCreateOption = useCallback(async (event: MouseEvent<SVGElement>) => {
+    const onCancelCreateOption = useCallback(async (event: MouseEvent<HTMLSpanElement>) => {
         event.stopPropagation();
         setSearchQuery("");
     }, []);
@@ -67,74 +70,88 @@ const CreatableSelect = <T extends {}>(props: CreatableSelectProps<T>) => {
         }
     }, [searchQuery, handleErrors, onOptionClick]);
 
+    const onCloseModal = useCallback(() => {
+        setConfirmationModalOpen(prev => !prev);
+    }, []);
+
     return (
-        <Popover
-            open={open}
-            onOpenChange={toggleDropdown}
+        <AlertModal
+            modalOpen={confirmationModalOpen}
+            onClose={onCloseModal}
+            alertTitle={`Create a new company "${searchQuery}"?`}
+            alertDescription={`This will create a new entry for a company named "${searchQuery}"`}
+            onConfirm={onCreateOption}
         >
-            <PopoverTrigger asChild className={className}>
-                <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={open}
-                    className="w-full justify-between"
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <Loader2Icon className="h-4 w-4 animate-spin" />
-                    ) : (
-                        selectedOption?.value ? String(selectedOption?.label) : "Select option..."
-                    )}
-                    <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent
-                className="p-0 min-w-[--radix-popover-trigger-width] max-h-[calc(var(--radix-popover-content-available-height)-2rem)] overflow-auto">
-                <Command>
-                    <CommandInput
-                        value={searchQuery}
-                        onValueChange={onQueryChange}
-                        placeholder="Search option..."
-                        className="h-9"
-                    />
-                    <CommandEmpty>No companies found. Type to create a new one.</CommandEmpty>
-                    <CommandGroup>
-                        <CommandList>
-                            {searchQuery &&
-                                !options.some((option) => matches(option.label, searchQuery, true)) && (
+            <Popover
+                open={open}
+                onOpenChange={toggleDropdown}
+            >
+                <PopoverTrigger asChild className={className}>
+                    <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        className="w-full justify-between"
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <Loader2Icon className="h-4 w-4 animate-spin" />
+                        ) : (
+                            selectedOption?.value ? String(selectedOption?.label) : "Select option..."
+                        )}
+                        <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                    className="p-0 min-w-[--radix-popover-trigger-width] max-h-[calc(var(--radix-popover-content-available-height)-2rem)] overflow-auto">
+                    <Command>
+                        <CommandInput
+                            value={searchQuery}
+                            onValueChange={onQueryChange}
+                            placeholder="Search option..."
+                            className="h-9"
+                        />
+                        <CommandEmpty>No companies found. Type to create a new one.</CommandEmpty>
+                        <CommandGroup>
+                            <CommandList>
+                                {searchQuery &&
+                                    !options.some((option) => matches(option.label, searchQuery, true)) && (
+                                        <CommandItem
+                                            key={searchQuery}
+                                            value={searchQuery}
+                                        >
+                                            <AlertDialogTrigger className="w-full text-left">
+                                                Create "{searchQuery}"
+                                            </AlertDialogTrigger>
+                                            <span
+                                                className="ml-auto h-4 w-4 cursor-pointer block"
+                                                onClick={onCancelCreateOption}>
+                                                <XIcon />
+                                            </span>
+                                        </CommandItem>
+                                    )}
+
+                                {options.map((option) => (
                                     <CommandItem
-                                        key={searchQuery}
-                                        value={searchQuery}
-                                        onSelect={onCreateOption}
+                                        key={String(option.value)}
+                                        value={String(option.value)}
+                                        onSelect={() => onOptionClick(option)}
                                     >
-                                        Create "{searchQuery}"
-                                        <XIcon
-                                            className="ml-auto h-4 w-4 cursor-pointer"
-                                            onClick={onCancelCreateOption}
+                                        {option.label}
+                                        <CheckIcon
+                                            className={cn(
+                                                "ml-auto h-4 w-4",
+                                                selectedOption?.value === option.value ? "opacity-100" : "opacity-0"
+                                            )}
                                         />
                                     </CommandItem>
-                                )}
-
-                            {options.map((option) => (
-                                <CommandItem
-                                    key={String(option.value)}
-                                    value={String(option.value)}
-                                    onSelect={() => onOptionClick(option)}
-                                >
-                                    {option.label}
-                                    <CheckIcon
-                                        className={cn(
-                                            "ml-auto h-4 w-4",
-                                            selectedOption?.value === option.value ? "opacity-100" : "opacity-0"
-                                        )}
-                                    />
-                                </CommandItem>
-                            ))}
-                        </CommandList>
-                    </CommandGroup>
-                </Command>
-            </PopoverContent>
-        </Popover>
+                                ))}
+                            </CommandList>
+                        </CommandGroup>
+                    </Command>
+                </PopoverContent>
+            </Popover>
+        </AlertModal>
     );
 };
 

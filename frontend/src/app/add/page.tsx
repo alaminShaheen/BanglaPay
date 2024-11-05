@@ -12,63 +12,57 @@ import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/constants/Routes";
 import { Gender } from "@/models/enums/Gender";
 import { Button } from "@/components/ui/button";
-import { Company } from "@/models/Company";
 import { Textarea } from "@/components/ui/textarea";
 import { Protected } from "@/components/Protected";
 import { Seniority } from "@/models/enums/Seniority";
-import { addCompany } from "@/services/AddCompany";
 import { OfferStatus } from "@/models/enums/OfferStatus";
 import CreatableSelect from "@/components/CreatableSelect";
 import { SelectOption } from "@/models/SelectOption";
-import { getCompanies } from "@/services/GetCompanies";
 import { ContractType } from "@/models/enums/ContractType";
 import { getFormOptions } from "@/services/GetFormOptions";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
 import { CompensationForm } from "@/models/forms/CompensationForm";
 import { HighestEducation } from "@/models/enums/HighestEducation";
 import { FormOptionsResponse } from "@/models/services/FormOptionsResponse";
+import { useAddCompanyMutation } from "@/hooks/mutations/useAddCompanyMutation";
+import { useFetchCompaniesQuery } from "@/hooks/queries/useFetchCompaniesQuery";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useAddCompensationMutation } from "@/hooks/mutations/useAddCompensationMutation";
 
 const Add = () => {
     const {
         register,
         formState: { errors },
         handleSubmit,
-        control
+        control,
+        setError
     } = useForm<CompensationForm>();
     const [loading, setLoading] = useState(false);
     const { handleErrors } = useErrorHandler();
-    const [companies, setCompanies] = useState<Company[]>([]);
     const [selectOptions, setSelectOptions] = useState<FormOptionsResponse>();
 
-    const onSubmit = useCallback((data: CompensationForm) => {
-    }, []);
+    const { mutate: addCompanyMutation, isPending: isAddingCompany } = useAddCompanyMutation();
+
+    const { mutate: addCompensationMutation, isPending: isAddingCompensation } = useAddCompensationMutation({
+        setError,
+        onAddCompensationSuccess: () => {
+        }
+    });
+
+    const {
+        data: companyData,
+        error: fetchCompanyError,
+        isPending: fetchingCompanyData
+    } = useFetchCompaniesQuery({ enabled: true });
+
+
+    const onSubmit = useCallback(async (data: CompensationForm) => {
+        addCompensationMutation(data);
+    }, [addCompensationMutation]);
 
     const onAddCompany = useCallback(async (companyName: string) => {
-        try {
-            setLoading(true);
-            const newCompanyOption = await addCompany({ name: companyName });
-            setCompanies(prev => [...prev, newCompanyOption.data]);
-        } catch (error) {
-            console.log(error);
-            handleErrors(new Error("An error occurred when creating a new company"));
-        } finally {
-            setLoading(false);
-        }
-    }, [handleErrors]);
-
-    const fetchCompanies = useCallback(async () => {
-        try {
-            setLoading(true);
-            const companyData = await getCompanies();
-            setCompanies(companyData.data);
-        } catch (error) {
-            console.log(error);
-            handleErrors(new Error("An error occurred when creating a new company"));
-        } finally {
-            setLoading(false);
-        }
-    }, [handleErrors]);
+        addCompanyMutation(companyName);
+    }, [addCompanyMutation]);
 
     const fetchFormOptions = useCallback(async () => {
         try {
@@ -84,9 +78,15 @@ const Add = () => {
     }, [handleErrors]);
 
     useEffect(() => {
-        void fetchCompanies();
         void fetchFormOptions();
-    }, [fetchCompanies, fetchFormOptions]);
+    }, [fetchFormOptions]);
+
+    useEffect(() => {
+        if (fetchCompanyError) {
+            console.log(fetchCompanyError);
+            handleErrors(new Error("An error occurred when creating a new company"));
+        }
+    }, [handleErrors, fetchCompanyError]);
 
     return (
         <div className="max-w-lg mx-auto border border-border rounded-md p-4 my-10 bg-background">
@@ -106,8 +106,14 @@ const Add = () => {
                                 <CreatableSelect<string>
                                     onCreate={onAddCompany}
                                     value={value}
-                                    onOptionSelect={onChange}
-                                    options={companies.map(company => ({ label: company.name, value: company.name }))}
+                                    onOptionSelect={(value) => {
+                                        console.log(value);
+                                        onChange(value);
+                                    }}
+                                    options={companyData?.map(company => ({
+                                        label: company.name,
+                                        value: company.name
+                                    })) || []}
                                     className="mt-2"
                                 />
                             );
@@ -166,7 +172,10 @@ const Add = () => {
                             return (
                                 <Select<string>
                                     value={value}
-                                    onChange={onChange}
+                                    onChange={(value) => {
+                                        console.log(value, "hello");
+                                        onChange(value);
+                                    }}
                                     options={selectOptions?.jobFamily || []}
                                     className="mt-2"
                                 />
@@ -484,7 +493,13 @@ const Add = () => {
                     </RadioGroup>
                 </div>
 
-                <Button type="submit" className="mt-2" disabled={loading}>Submit</Button>
+                <Button
+                    type="submit"
+                    className="mt-2"
+                    disabled={loading || fetchingCompanyData || isAddingCompany || isAddingCompensation}
+                >
+                    Submit
+                </Button>
             </form>
         </div>
     );

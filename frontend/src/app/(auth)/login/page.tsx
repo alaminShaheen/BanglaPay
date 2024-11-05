@@ -5,21 +5,23 @@ import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import { AxiosResponse } from "axios";
 import { Eye, EyeOff, RefreshCcw } from "lucide-react";
 import React, { Fragment, useCallback, useState } from "react";
 import { getAuth, GithubAuthProvider, GoogleAuthProvider, signInWithCustomToken, signInWithPopup } from "firebase/auth";
 
 import { cn } from "@/lib/utils";
 import { auth } from "@/firebaseConfig";
-import { login } from "@/services/Login";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/constants/Routes";
 import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/models/forms/LoginForm";
+import { LoginResponse } from "@/models/services/LoginResponse";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
-import { thirdPartyLogin } from "@/services/ThirdPartyLogin";
+import { useLoginMutation } from "@/hooks/mutations/useLoginMutation";
+import { useThirdPartyLogin } from "@/hooks/mutations/useThirdPartyLoginMutation";
 
 
 const Login = () => {
@@ -30,18 +32,15 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
-
-    const onSubmit = useCallback(async (formData: LoginForm) => {
+    const onLoginSuccess = useCallback(async (response: AxiosResponse<LoginResponse>) => {
         try {
             setLoading(true);
-
-            const response = await login(formData);
 
             const userCredentials = await signInWithCustomToken(auth, response.data.accessToken);
             await onUserLogin(userCredentials.user);
 
             if (!userCredentials.user.emailVerified) {
-                throw new Error("Email has not been verified");
+                handleErrors(new Error("Email has not been verified"), setError);
             }
 
             reset({ email: "", password: "" });
@@ -51,34 +50,54 @@ const Login = () => {
         } finally {
             setLoading(false);
         }
-    }, [reset, setError, handleErrors, router]);
+    }, [reset, router, handleErrors]);
+
+    const onThirdPartyLoginSuccess = useCallback(() => {
+        router.push(ROUTES.SALARIES);
+    }, [router]);
+
+    const { mutate: loginMutate, isPending: loginMutationPending } = useLoginMutation({
+        setError,
+        onLoginSuccess
+    });
+    const { mutate: thirdPartyMutate, isPending: thirdPartyMutationPending } = useThirdPartyLogin({
+        setError,
+        onLoginSuccess: onThirdPartyLoginSuccess
+    });
+
+    const onSubmit = useCallback(async (formData: LoginForm) => {
+        loginMutate(formData);
+    }, [loginMutate]);
 
     const loginWithGoogle = useCallback(async () => {
         try {
+            setLoading(true);
             const firebaseAuth = getAuth();
             const provider = new GoogleAuthProvider();
             const userCredentials = await signInWithPopup(firebaseAuth, provider);
             await onUserLogin(userCredentials.user);
-            await thirdPartyLogin();
-            router.push(ROUTES.SALARIES);
+            thirdPartyMutate();
         } catch (error) {
-            console.log(error);
             handleErrors<LoginForm>(error, setError);
+        } finally {
+            setLoading(false);
         }
-    }, [handleErrors, onUserLogin, router]);
+    }, [handleErrors, onUserLogin, router, thirdPartyMutate]);
 
     const loginWithGithub = useCallback(async () => {
         try {
+            setLoading(true);
             const firebaseAuth = getAuth();
             const provider = new GithubAuthProvider();
             const userCredentials = await signInWithPopup(firebaseAuth, provider);
             await onUserLogin(userCredentials.user);
-            await thirdPartyLogin();
-            router.push(ROUTES.SALARIES);
+            thirdPartyMutate();
         } catch (error) {
             handleErrors<LoginForm>(error, setError);
+        } finally {
+            setLoading(false);
         }
-    }, [onUserLogin, router, handleErrors]);
+    }, [onUserLogin, router, handleErrors, thirdPartyMutate]);
 
     return (
         <Fragment>
@@ -130,7 +149,8 @@ const Login = () => {
                         <span className="text-xs text-destructive">{errors.password.message}</span>
                     )}
                 </div>
-                <Button variant="default" type="submit" className="w-full md:w-1/3 mx-auto" disabled={loading}>
+                <Button variant="default" type="submit" className="w-full md:w-1/3 mx-auto"
+                        disabled={loading || thirdPartyMutationPending || loginMutationPending}>
                     {loading && <RefreshCcw className="mr-2 h-4 w-4 animate-spin" />}
                     Login
                 </Button>
@@ -144,11 +164,13 @@ const Login = () => {
             </form>
 
             <div className="flex gap-4">
-                <Button variant="outline" className="mb-4 w-full" onClick={loginWithGoogle} disabled={loading}>
+                <Button variant="outline" className="mb-4 w-full" onClick={loginWithGoogle}
+                        disabled={loading || thirdPartyMutationPending || loginMutationPending}>
                     <FcGoogle /> {" "} Google
                 </Button>
 
-                <Button variant="outline" className="mb-4 w-full" onClick={loginWithGithub} disabled={loading}>
+                <Button variant="outline" className="mb-4 w-full" onClick={loginWithGithub}
+                        disabled={loading || thirdPartyMutationPending || loginMutationPending}>
                     <FaGithub /> {" "} Github
                 </Button>
             </div>

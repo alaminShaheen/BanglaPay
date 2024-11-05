@@ -3,6 +3,7 @@ import { GoogleSpreadsheetRow } from "google-spreadsheet";
 import { getDatabaseInstance } from "../database";
 
 import { Company } from "@/models/Company";
+import { AppError } from "@/errors/AppError";
 import { DATABASE_CONSTANTS } from "@/constants/databaseConstants";
 import { AddCompanyRequestDto } from "@/models/dtos/AddCompanyRequestDto";
 
@@ -10,6 +11,12 @@ import { AddCompanyRequestDto } from "@/models/dtos/AddCompanyRequestDto";
 async function createCompany(companyInfo: AddCompanyRequestDto) {
     try {
         const companiesTable = await getCompanyTable();
+
+        const existingCompany = await findCompanyByName(companyInfo.name);
+
+        if (!!existingCompany) {
+            throw new AppError(400, "Company already exists");
+        }
 
         const companyWithId: Company = { id: uuidv4(), name: companyInfo.name };
         const companyRecord: GoogleSpreadsheetRow<Company> = await companiesTable.addRow(companyWithId);
@@ -29,7 +36,7 @@ async function getCompanyTable() {
     }
 }
 
-async function findCompanyRecord(companyId: string) {
+async function findCompanyById(companyId: string) {
     const companiesTable = await getCompanyTable();
 
     const companyRows = await companiesTable.getRows<Company>();
@@ -37,9 +44,17 @@ async function findCompanyRecord(companyId: string) {
     return companyRows.find(companyRow => companyRow.get("id") === companyId) ?? null;
 }
 
+async function findCompanyByName(companyName: string) {
+    const companiesTable = await getCompanyTable();
+
+    const companyRows = await companiesTable.getRows<Company>();
+
+    return companyRows.find(companyRow => companyRow.get("name") === companyName) ?? null;
+}
+
 async function getCompany(companyId: string) {
     try {
-        const company = await findCompanyRecord(companyId);
+        const company = await findCompanyById(companyId);
 
         if (!company) {
             return null;
@@ -70,7 +85,7 @@ function serializeCompanyToJson(companyInfo: GoogleSpreadsheetRow<Company> | Goo
 
 async function updateCompany(updatedCompanyInfo: Company) {
     try {
-        const company = await findCompanyRecord(updatedCompanyInfo.id);
+        const company = await findCompanyById(updatedCompanyInfo.id);
 
         if (!company) {
             return null;
