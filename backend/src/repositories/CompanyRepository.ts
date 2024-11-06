@@ -12,9 +12,9 @@ async function createCompany(companyInfo: AddCompanyRequestDto) {
     try {
         const companiesTable = await getCompanyTable();
 
-        const existingCompany = await findCompanyByName(companyInfo.name);
+        const isCompanyExisting = await findCompanyByName(companyInfo.name);
 
-        if (!!existingCompany) {
+        if (isCompanyExisting) {
             throw new AppError(400, "Company already exists");
         }
 

@@ -70,7 +70,6 @@ const Add = () => {
             const formOptionsResponse = await getFormOptions();
             setSelectOptions(formOptionsResponse.data);
         } catch (error) {
-            console.log(error);
             handleErrors(error);
         } finally {
             setLoading(false);
@@ -83,7 +82,6 @@ const Add = () => {
 
     useEffect(() => {
         if (fetchCompanyError) {
-            console.log(fetchCompanyError);
             handleErrors(new Error("An error occurred when creating a new company"));
         }
     }, [handleErrors, fetchCompanyError]);
@@ -106,10 +104,7 @@ const Add = () => {
                                 <CreatableSelect<string>
                                     onCreate={onAddCompany}
                                     value={value}
-                                    onOptionSelect={(value) => {
-                                        console.log(value);
-                                        onChange(value);
-                                    }}
+                                    onOptionSelect={onChange}
                                     options={companyData?.map(company => ({
                                         label: company.name,
                                         value: company.name
@@ -172,10 +167,7 @@ const Add = () => {
                             return (
                                 <Select<string>
                                     value={value}
-                                    onChange={(value) => {
-                                        console.log(value, "hello");
-                                        onChange(value);
-                                    }}
+                                    onChange={onChange}
                                     options={selectOptions?.jobFamily || []}
                                     className="mt-2"
                                 />

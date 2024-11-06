@@ -21,7 +21,6 @@ export const useErrorHandler = () => {
     }, []);
 
     const handleGenericErrors = useCallback((error: Error) => {
-        console.log(error);
         toast.error(error.message, {
             richColors: true,
             description: toastDateFormat(new Date()),
@@ -41,7 +40,6 @@ export const useErrorHandler = () => {
                 handleGenericErrors(error.response.data);
             }
         } else if (error instanceof FirebaseError) {
-            console.log(error.code);
             if (
                 error.code.includes("popup-closed-by-user") ||
                 error.code.includes("cancelled-popup-request")

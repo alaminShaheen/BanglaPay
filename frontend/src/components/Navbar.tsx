@@ -20,11 +20,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/Routes";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 
 const Navbar = () => {
     const { resolvedTheme, setTheme } = useTheme();
     const { authenticated } = useAuthContext();
     const router = useRouter();
+    const {handleErrors} = useErrorHandler();
 
 
     const onThemeChange = useCallback(() => {
@@ -36,9 +38,9 @@ const Navbar = () => {
             await signOut(auth);
             router.push(ROUTES.LOGIN);
         } catch (error) {
-            console.error("Error signing out:", error);
+            handleErrors(error);
         }
-    }, [signOut]);
+    }, [signOut, handleErrors]);
 
     return (
         <nav className="p-6 flex justify-between items-center bg-background">
