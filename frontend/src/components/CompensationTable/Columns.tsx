@@ -23,7 +23,7 @@ export const Columns: ColumnDef<Compensation>[] = [
                 Location
             </span>
         </div>,
-        cell: ({row}) => {
+        cell: ({ row }) => {
             return (
                 <div className="inline-flex flex-col gap-1">
                     <span className="font-bold">{row.original.company}</span>
@@ -32,7 +32,7 @@ export const Columns: ColumnDef<Compensation>[] = [
                         {row.original.officeCity}
                     </span>
                 </div>
-            )
+            );
         }
     },
     {
@@ -45,7 +45,7 @@ export const Columns: ColumnDef<Compensation>[] = [
                 Year | YOE
             </span>
         </div>,
-        cell: ({row}) => {
+        cell: ({ row }) => {
             return (
                 <div className="inline-flex flex-col gap-1">
                     <span className="font-bold">{row.original.jobTitle}</span>
@@ -53,7 +53,7 @@ export const Columns: ColumnDef<Compensation>[] = [
                         {row.original.yearOfCompensation} | {row.original.yearsOfExperience}
                     </span>
                 </div>
-            )
+            );
         }
     },
     {
@@ -77,7 +77,7 @@ export const Columns: ColumnDef<Compensation>[] = [
             );
         },
         cell: ({ row }) => {
-            const amount = parseFloat(row.getValue("baseSalary"));
+            const amount = row.original.baseSalary + (row.original.annualBonus || 0) + (row.original.signOnBonus || 0);
 
             const formatted = new Intl.NumberFormat("en-US", {}).format(amount);
 
