@@ -12,7 +12,15 @@ import { loggingHandler } from "@/middlewares/loggingHandler";
 import { CLIENT_ORIGIN, SERVER_PORT } from "@/configs/config";
 
 const app = express();
-app.use(cors({ origin: CLIENT_ORIGIN }));
+app.use(cors({
+    origin: CLIENT_ORIGIN, allowedHeaders: [
+        "Content-Type"
+    ], methods: [
+        "GET",
+        "POST",
+        "DELETE"
+    ]
+}));
 app.use(express.json());
 
 const appRouter = router();
@@ -22,6 +30,17 @@ initFirebase();
 
 
 app.use(loggingHandler);
+
+app.options("*", cors({
+    origin: CLIENT_ORIGIN, allowedHeaders: [
+        "Content-Type"
+    ], methods: [
+        "GET",
+        "POST",
+        "DELETE"
+    ]
+}));
+
 app.use("/api", appRouter);
 
 app.use(errorHandler);
