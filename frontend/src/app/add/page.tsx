@@ -1,17 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { ArrowBigLeft } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn, toastDateFormat } from "@/lib/utils";
 import Select from "@/components/Select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/constants/Routes";
 import { Gender } from "@/models/enums/Gender";
 import { Button } from "@/components/ui/button";
+import { Company } from "@/models/Company";
 import { Textarea } from "@/components/ui/textarea";
 import { Protected } from "@/components/Protected";
 import { Seniority } from "@/models/enums/Seniority";
@@ -19,16 +22,15 @@ import { OfferStatus } from "@/models/enums/OfferStatus";
 import CreatableSelect from "@/components/CreatableSelect";
 import { SelectOption } from "@/models/SelectOption";
 import { ContractType } from "@/models/enums/ContractType";
-import { getFormOptions } from "@/services/GetFormOptions";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
 import { CompensationForm } from "@/models/forms/CompensationForm";
 import { HighestEducation } from "@/models/enums/HighestEducation";
-import { FormOptionsResponse } from "@/models/services/FormOptionsResponse";
+import { OfficeArrangement } from "@/models/enums/OfficeArrangement";
 import { useAddCompanyMutation } from "@/hooks/mutations/useAddCompanyMutation";
 import { useFetchCompaniesQuery } from "@/hooks/queries/useFetchCompaniesQuery";
+import { useFetchFormOptionsQuery } from "@/hooks/queries/useFetchFormOptionsQuery";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAddCompensationMutation } from "@/hooks/mutations/useAddCompensationMutation";
-import { OfficeArrangement } from "@/models/enums/OfficeArrangement";
 
 const Add = () => {
     const {
@@ -38,23 +40,53 @@ const Add = () => {
         control,
         setError
     } = useForm<CompensationForm>();
-    const [loading, setLoading] = useState(false);
     const { handleErrors } = useErrorHandler();
-    const [selectOptions, setSelectOptions] = useState<FormOptionsResponse>();
+    const router = useRouter();
 
-    const { mutate: addCompanyMutation, isPending: isAddingCompany } = useAddCompanyMutation();
+    const onCompanyAddSuccessful = useCallback((response: Company) => {
+        toast.success(`${response.name} has been added successfully.`, {
+            richColors: true,
+            description: toastDateFormat(new Date()),
+            action: {
+                label: "Close",
+                onClick: () => null,
+            }
+        });
+    }, []);
 
-    const { mutate: addCompensationMutation, isPending: isAddingCompensation } = useAddCompensationMutation({
+    const onCompensationAddSuccessful = useCallback(() => {
+        toast.success(`You compensation has been added successfully`, {
+            richColors: true,
+            description: toastDateFormat(new Date()),
+            action: {
+                label: "Close",
+                onClick: () => null,
+            }
+        });
+        router.push(ROUTES.SALARIES);
+    }, [router]);
+
+    const {
+        mutate: addCompanyMutation,
+        isPending: isAddingCompany
+    } = useAddCompanyMutation({onSuccess: onCompanyAddSuccessful});
+    const {
+        mutate: addCompensationMutation,
+        isPending: isAddingCompensation
+    } = useAddCompensationMutation({
         setError,
-        onAddCompensationSuccess: () => {
-        }
+        onAddCompensationSuccess: onCompensationAddSuccessful
     });
-
     const {
         data: companyData,
         error: fetchCompanyError,
-        isPending: fetchingCompanyData
+        isPending: isFetchingCompanyData
     } = useFetchCompaniesQuery({ enabled: true });
+    const {
+        data: selectOptions,
+        error: fetchFormOptionsError,
+        isPending: isFetchingFormOptions,
+    } = useFetchFormOptionsQuery({ enabled: true });
 
 
     const onSubmit = useCallback(async (data: CompensationForm) => {
@@ -65,31 +97,25 @@ const Add = () => {
         addCompanyMutation(companyName);
     }, [addCompanyMutation]);
 
-    const fetchFormOptions = useCallback(async () => {
-        try {
-            setLoading(true);
-            const formOptionsResponse = await getFormOptions();
-            setSelectOptions(formOptionsResponse.data);
-        } catch (error) {
-            handleErrors(error);
-        } finally {
-            setLoading(false);
-        }
-    }, [handleErrors]);
-
-    useEffect(() => {
-        void fetchFormOptions();
-    }, [fetchFormOptions]);
+    const appLoading = useMemo(() => {
+        return isAddingCompensation || isAddingCompany || isFetchingCompanyData || isFetchingFormOptions;
+    }, [isAddingCompensation, isAddingCompany, isFetchingCompanyData, isFetchingFormOptions]);
 
     useEffect(() => {
         if (fetchCompanyError) {
             handleErrors(new Error("An error occurred when creating a new company"));
+        } else if (fetchFormOptionsError) {
+            handleErrors(fetchFormOptionsError);
         }
-    }, [handleErrors, fetchCompanyError]);
+    }, [handleErrors, fetchCompanyError, fetchFormOptionsError]);
 
     return (
         <div className="max-w-lg mx-auto border border-border rounded-md p-4 my-10 bg-background">
-            <Button variant="linkHover2" className="p-0 text-primary">
+            <Button
+                variant="linkHover2"
+                className="p-0 dark:text-primary "
+                disabled={appLoading}
+            >
                 <Link href={ROUTES.SALARIES} className="flex items-center">
                     <ArrowBigLeft /> Back
                 </Link>
@@ -517,7 +543,7 @@ const Add = () => {
                 <Button
                     type="submit"
                     className="mt-2"
-                    disabled={loading || fetchingCompanyData || isAddingCompany || isAddingCompensation}
+                    disabled={appLoading}
                 >
                     Submit
                 </Button>

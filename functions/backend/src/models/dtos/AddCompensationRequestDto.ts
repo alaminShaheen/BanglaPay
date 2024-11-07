@@ -1,3 +1,3 @@
 import { Compensation } from "@/models/Compensation";
 
-export type AddCompensationRequestDto = Omit<Compensation, "id">;
+export type AddCompensationRequestDto = Omit<Compensation, "id" | "addedAt">;

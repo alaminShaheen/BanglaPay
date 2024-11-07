@@ -69,7 +69,7 @@ export const Columns: ColumnDef<Compensation>[] = [
                             Base | Annual Bonus | Sign-on Bonus
                         </span>
                     </div>
-                    <Button variant="link" className="px-1"
+                    <Button variant="ghost" className="px-1"
                             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
                         <ArrowUpDown size={8} />
                     </Button>

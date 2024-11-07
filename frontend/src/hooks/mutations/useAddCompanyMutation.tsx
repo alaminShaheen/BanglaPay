@@ -4,11 +4,12 @@ import { Company } from "@/models/Company";
 import { addCompany } from "@/services/AddCompany";
 import { QUERY_KEYS } from "@/constants/QueryKeys";
 
-// type UseAddCompanyMutationProps = {
-// }
+type UseAddCompanyMutationProps = {
+    onSuccess: (company: Company) => void;
+}
 
-export const useAddCompanyMutation = () => {
-    // const {  } = props;
+export const useAddCompanyMutation = (props: UseAddCompanyMutationProps) => {
+    const { onSuccess } = props;
     const { handleErrors } = useErrorHandler();
     const queryClient = useQueryClient();
 
@@ -24,6 +25,7 @@ export const useAddCompanyMutation = () => {
                 }
                 return [response];
             });
+            onSuccess(response);
         },
         onError: (error) => handleErrors(error)
     });

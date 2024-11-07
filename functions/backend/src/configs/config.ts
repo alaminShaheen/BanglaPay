@@ -1,7 +1,9 @@
 import dotenv from "dotenv";
 import * as process from "node:process";
 
-dotenv.config();
+process.env.NODE_ENV = process.env.NODE_ENV || "development";
+
+dotenv.config({ path: process.env.NODE_ENV === "development" ? ".env" : ".env.production" });
 
 export const DEVELOPMENT = process.env.NODE_ENV === "development";
 export const TEST = process.env.NODE_ENV === "test";
@@ -20,6 +22,8 @@ export const APP_FIREBASE_PROJECT_ID = String(process.env.APP_FIREBASE_PROJECT_I
 export const APP_FIREBASE_STORAGE_BUCKET = String(process.env.APP_FIREBASE_STORAGE_BUCKET) || "";
 export const APP_FIREBASE_MESSAGING_SENDER_ID = String(process.env.APP_FIREBASE_MESSAGING_SENDER_ID) || "";
 export const APP_FIREBASE_APP_ID = String(process.env.APP_FIREBASE_APP_ID) || "";
+
+console.log(process.env.NODE_ENV);
 
 export const APP_FIREBASE_SERVICE_TYPE = String(process.env.APP_FIREBASE_SERVICE_TYPE) || "";
 export const APP_FIREBASE_SERVICE_PRIVATE_KEY_ID = String(process.env.APP_FIREBASE_SERVICE_PRIVATE_KEY_ID) || "";
