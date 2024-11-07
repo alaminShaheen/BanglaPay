@@ -1,13 +1,14 @@
 import { body } from "express-validator";
-import { LoginRequestUserDto } from "@/models/dtos/LoginRequestUserDto";
+import { LoginRequestDto } from "@/models/dtos/LoginRequestDto";
 
 export function loginUserValidator() {
     return [
-        body("email" as keyof LoginRequestUserDto)
+        body("email" as keyof LoginRequestDto)
+            .customSanitizer((value: string) => value.trim())
             .notEmpty()
             .withMessage("Email is required.")
             .isEmail()
             .withMessage("Email is invalid."),
-        body("password" as keyof LoginRequestUserDto).notEmpty().withMessage("Password is required")
+        body("password" as keyof LoginRequestDto).customSanitizer((value: string) => value.trim()).notEmpty().withMessage("Password is required")
     ];
 }

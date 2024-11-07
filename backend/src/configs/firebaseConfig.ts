@@ -17,8 +17,8 @@ import {
     FIREBASE_SERVICE_UNIVERSE_DOMAIN,
     FIREBASE_STORAGE_BUCKET
 } from "@/configs/config";
-import { initializeApp } from "firebase/app";
 import { cert, initializeApp as initializeAdminApp } from "firebase-admin/app";
+import { initializeApp } from "firebase/app";
 
 
 const firebaseConfig = {

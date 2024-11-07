@@ -6,6 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc --build",
     "start": "node dist/index.js",
+    "company-seed": "npm run build && ts-node ./src/seeds/CompanySeed.ts",
+    "compensation-seed": "npm run build && ts-node ./src/seeds/CompensationSeed.ts",
     "dev": "nodemon"
   },
   "type": "commonjs",
@@ -14,6 +16,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@faker-js/faker": "^9.2.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-validator": "^7.2.0",
@@ -21,9 +25,11 @@
     "firebase-admin": "^12.6.0",
     "google-auth-library": "^9.14.2",
     "google-spreadsheet": "^4.1.4",
-    "module-alias": "^2.2.3"
+    "module-alias": "^2.2.3",
+    "uuid": "^11.0.2"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/module-alias": "^2.0.4",
     "@types/node": "^22.7.7",
