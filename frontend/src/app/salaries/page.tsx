@@ -115,6 +115,4 @@ const Salaries = () => {
     );
 };
 
-const ProtectedSalaries = Protected(Salaries)
-
-export default ProtectedSalaries;
+export default Protected(Salaries);

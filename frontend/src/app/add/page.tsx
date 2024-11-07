@@ -526,6 +526,4 @@ const Add = () => {
     );
 };
 
-const ProtectedAdd = Protected(Add);
-
-export default ProtectedAdd;
+export default Protected(Add);
