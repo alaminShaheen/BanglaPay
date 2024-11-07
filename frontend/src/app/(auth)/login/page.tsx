@@ -75,6 +75,7 @@ const Login = () => {
             const firebaseAuth = getAuth();
             const provider = new GoogleAuthProvider();
             const userCredentials = await signInWithPopup(firebaseAuth, provider);
+            console.log(userCredentials);
             await onUserLogin(userCredentials.user);
             thirdPartyMutate();
         } catch (error) {

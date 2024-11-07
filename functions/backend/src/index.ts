@@ -13,13 +13,8 @@ import { CLIENT_ORIGIN, SERVER_PORT } from "@/configs/config";
 
 const app = express();
 app.use(cors({
-    origin: CLIENT_ORIGIN, allowedHeaders: [
-        "Content-Type"
-    ], methods: [
-        "GET",
-        "POST",
-        "DELETE"
-    ]
+    origin: CLIENT_ORIGIN,
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
@@ -32,13 +27,8 @@ initFirebase();
 app.use(loggingHandler);
 
 app.options("*", cors({
-    origin: CLIENT_ORIGIN, allowedHeaders: [
-        "Content-Type"
-    ], methods: [
-        "GET",
-        "POST",
-        "DELETE"
-    ]
+    origin: CLIENT_ORIGIN,
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use("/api", appRouter);
