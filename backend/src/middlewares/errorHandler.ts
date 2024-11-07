@@ -11,14 +11,16 @@ export const errorHandler: ErrorRequestHandler = (error, request, response, next
             response.status(400).send({ message: "Email is already in use" });
         }
     } else if (error instanceof AppError) {
-        response.status(error.statusCode).send({ message: error.message });
+        response.status(error.statusCode).send({ message: error.message, errorType: error.errorType });
     } else if (error instanceof AppValidationError) {
         response.status(error.statusCode).json({
             message: error.message,
-            fieldErrors: error.fieldErrors
+            fieldErrors: error.fieldErrors,
+            errorType: error.errorType
         });
+    } else {
+        response.status(500).send({ message: "Internal Server Error" });
     }
     logging.error(error);
-    response.status(500).send({ message: "Internal Server Error" });
     return;
 };

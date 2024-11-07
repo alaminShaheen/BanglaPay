@@ -1,6 +1,6 @@
 export enum Gender {
-    MALE = 'MALE',
-    FEMALE = 'FEMALE',
-    OTHER = 'OTHER',
-    DONT_SPECIFY = 'DONT_SPECIFY',
+    MALE = "Male",
+    FEMALE = "Female",
+    OTHER = "Other",
+    DONT_SPECIFY = "Don't want to specify",
 }

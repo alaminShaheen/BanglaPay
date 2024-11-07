@@ -1,8 +1,7 @@
-import {GoogleSpreadsheet} from "google-spreadsheet";
 import { GOOGLE_PRIVATE_KEY, GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SHEET_ID } from "@/configs/config";
+import {GoogleSpreadsheet} from "google-spreadsheet";
 import {JWT} from "google-auth-library";
 import logging from "@/utils/logging";
-import { config } from "dotenv";
 
 let databaseInstance: GoogleSpreadsheet;
 

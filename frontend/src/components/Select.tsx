@@ -11,7 +11,7 @@ import {
 import { GroupedSelectOption, SelectOption } from "@/models/SelectOption";
 
 type SelectProps<T> = {
-    value: T;
+    value?: T;
     onChange: (value: T) => void;
     className?: string;
     placeholder?: string;

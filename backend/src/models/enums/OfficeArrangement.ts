@@ -1,5 +1,5 @@
 export enum OfficeArrangement {
-    IN_OFFICE = "IN_OFFICE",
-    HYBRID = "HYBRID",
-    REMOTE = "REMOTE",
+    IN_OFFICE = "In Office",
+    HYBRID = "Hybrid",
+    REMOTE = "Remote",
 }

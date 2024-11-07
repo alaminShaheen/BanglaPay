@@ -103,6 +103,7 @@ async function updateCompany(updatedCompanyInfo: Company) {
 
 export const CompanyRepository = {
     createCompany,
+    getCompanyTable,
     getCompany,
     getCompanies,
     updateCompany

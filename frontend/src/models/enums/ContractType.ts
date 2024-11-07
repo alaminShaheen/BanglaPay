@@ -1,7 +1,7 @@
 export enum ContractType {
-    FULL_TIME = 'FULL_TIME',
-    CONTRACTUAL = 'CONTRACTUAL',
-    FREELANCE = 'FREELANCE',
-    PART_TIME = 'PART_TIME',
-    OTHER = 'OTHER',
+    FULL_TIME = "Full Time",
+    CONTRACTUAL = "Contractual",
+    FREELANCE = "Freelance",
+    PART_TIME = "Part Time",
+    OTHER = "Other",
 }

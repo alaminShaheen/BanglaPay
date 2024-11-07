@@ -7,7 +7,17 @@ import { AddCompensationRequestDto } from "@/models/dtos/AddCompensationRequestD
 async function addHandler(request: Request<{}, {}, AddCompensationRequestDto>, response: Response, next: NextFunction) {
     try {
         handleFormValidationErrors(request);
+        const compensation = await CompensationService.addCompensation(request.body);
+        response.status(200).json(compensation);
+    } catch (error) {
+        next(error);
+    }
+}
 
+async function getCompensationsHandler(request: Request, response: Response, next: NextFunction) {
+    try {
+        const compensations = await CompensationService.getCompensations();
+        response.status(200).json(compensations);
     } catch (error) {
         next(error);
     }
@@ -25,5 +35,6 @@ async function formSelectOptionsHandler(request: Request, response: Response<For
 
 export const CompensationController = {
     addHandler,
-    formSelectOptionsHandler
+    formSelectOptionsHandler,
+    getCompensationsHandler,
 };

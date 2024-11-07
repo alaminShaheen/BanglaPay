@@ -28,6 +28,7 @@ import { useAddCompanyMutation } from "@/hooks/mutations/useAddCompanyMutation";
 import { useFetchCompaniesQuery } from "@/hooks/queries/useFetchCompaniesQuery";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAddCompensationMutation } from "@/hooks/mutations/useAddCompensationMutation";
+import { OfficeArrangement } from "@/models/enums/OfficeArrangement";
 
 const Add = () => {
     const {
@@ -414,6 +415,34 @@ const Add = () => {
                             </div>
                         </RadioGroup>
                     </div>
+                </div>
+
+                <div className="">
+                    <Label
+                        htmlFor="arrangement"
+                        className={cn({ "text-destructive": errors.arrangement })}
+                    >
+                        Office arrangement
+                    </Label>
+                    <Controller
+                        render={({ field: { value, onChange } }) => {
+                            return (
+                                <Select<OfficeArrangement>
+                                    value={value}
+                                    onChange={onChange}
+                                    placeholder="Select an arrangement"
+                                    options={selectOptions?.arrangement || []}
+                                    className="mt-2 w-full"
+                                />
+                            );
+                        }}
+                        name="arrangement"
+                        rules={{ required: "This field is required" }}
+                        control={control}
+                    />
+                    {errors.arrangement && (
+                        <span className="text-xs text-destructive">{errors.arrangement.message}</span>
+                    )}
                 </div>
 
                 <div className="">

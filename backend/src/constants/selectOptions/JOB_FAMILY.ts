@@ -3,82 +3,82 @@ import { GroupedSelectOption, SelectOption } from "@/models/SelectOption";
 export const JOB_FAMILY: (SelectOption<string> | GroupedSelectOption<string>)[] = [
     {
         label: "Software Engineering", options: [
-            { value: "eng_generic", label: "Software Engineer" },
-            { value: "eng_backend", label: "Backend" },
-            { value: "eng_web", label: "Frontend" },
-            { value: "eng_fullstack", label: "Fullstack" },
-            { value: "eng_mobile", label: "Mobile" },
-            { value: "eng_cloud", label: "Cloud" },
-            { value: "eng_embedded", label: "Embedded" },
-            { value: "eng_devops", label: "DevOps Engineer" },
-            { value: "eng_sre", label: "Site Reliablity Engineer (SRE)" },
-            { value: "eng_infra", label: "Platform &amp; Infra" },
-            { value: "eng_security", label: "Security Engineering" },
-            { value: "eng_data", label: "Data Engineer" },
-            { value: "eng_ml", label: "ML Engineer" },
-            { value: "eng_ai", label: "AI Engineer" },
-            { value: "eng_architect", label: "Architect" },
-            { value: "eng_solutions_architect", label: "Solutions Architect" },
-            { value: "eng_partner", label: "Partner Engineer" },
-            { value: "eng_sales", label: "Sales Engineer" },
-            { value: "eng_bi", label: "BI Engineer" },
-            { value: "eng_consultant", label: "Consultant" },
-            { value: "eng_support", label: "Support Engineer" },
-            { value: "eng_test", label: "Test/QA/SDET" }
+            { value: "Software Engineer", label: "Software Engineer" },
+            { value: "Backend", label: "Backend" },
+            { value: "Frontend", label: "Frontend" },
+            { value: "Fullstack", label: "Fullstack" },
+            { value: "Mobile", label: "Mobile" },
+            { value: "Cloud", label: "Cloud" },
+            { value: "Embedded", label: "Embedded" },
+            { value: "DevOps Engineer", label: "DevOps Engineer" },
+            { value: "Site Reliablity Engineer (SRE)", label: "Site Reliablity Engineer (SRE)" },
+            { value: "Platform &amp; Infra", label: "Platform &amp; Infra" },
+            { value: "Security Engineering", label: "Security Engineering" },
+            { value: "Data Engineer", label: "Data Engineer" },
+            { value: "ML Engineer", label: "ML Engineer" },
+            { value: "AI Engineer", label: "AI Engineer" },
+            { value: "Architect", label: "Architect" },
+            { value: "Solutions Architect", label: "Solutions Architect" },
+            { value: "Partner Engineer", label: "Partner Engineer" },
+            { value: "Sales Engineer", label: "Sales Engineer" },
+            { value: "BI Engineer", label: "BI Engineer" },
+            { value: "Consultant", label: "Consultant" },
+            { value: "Support Engineer", label: "Support Engineer" },
+            { value: "Test/QA/SDET", label: "Test/QA/SDET" }
         ]
     },
     {
         label: "Engineering Management", options: [
-            { value: "tech_lead", label: "Tech Lead" },
-            { value: "eng_manager", label: "Engineering Manager" },
-            { value: "delivery_manager", label: "Delivery Manager" }
+            { value: "Tech Lead", label: "Tech Lead" },
+            { value: "Engineering Manager", label: "Engineering Manager" },
+            { value: "Delivery Manager", label: "Delivery Manager" }
         ]
     },
     {
         label: "Product & Program Management", options: [
-            { value: "product_manager", label: "Product Manager" },
-            { value: "program_manager", label: "Program Manager" },
-            { value: "tpm", label: "TPM" },
-            { value: "product_owner", label: "Product Owner" },
-            { value: "project_manager", label: "Project Manager" },
-            { value: "product_marketing_manager", label: "Product Marketing Manager" },
-            { value: "business_analyst", label: "Business Analyst" }
+            { value: "Product Manager", label: "Product Manager" },
+            { value: "Program Manager", label: "Program Manager" },
+            { value: "TPM", label: "TPM" },
+            { value: "Product Owner", label: "Product Owner" },
+            { value: "Project Manager", label: "Project Manager" },
+            { value: "Product Marketing Manager", label: "Product Marketing Manager" },
+            { value: "Business Analyst", label: "Business Analyst" }
         ]
     },
     {
         label: "Design", options: [
-            { value: "designer", label: "Designer" },
-            { value: "ux_designer", label: "UX Designer" },
-            { value: "user_researcher", label: "User Researcher" }
+            { value: "Designer", label: "Designer" },
+            { value: "UX Designer", label: "UX Designer" },
+            { value: "User Researcher", label: "User Researcher" }
         ]
     },
     {
         label: "Data Science", options: [
-            { value: "data_scientist", label: "Data Scientist" },
-            { value: "data_analyst", label: "Data Analytist" },
-            { value: "quant_analyst", label: "Quant Analytist" }
+            { value: "Data Scientist", label: "Data Scientist" },
+            { value: "Data Analytist", label: "Data Analytist" },
+            { value: "Quant Analytist", label: "Quant Analytist" }
         ]
     },
     {
         label: "Developer Advocacy", options: [
-            { value: "dev_advocate", label: "Developer Advocate" },
-            { value: "tech_evangelist", label: "Technical Evangelist" },
-            { value: "tech_writer", label: "Technical Writer" }
+            { value: "Developer Advocate", label: "Developer Advocate" },
+            { value: "Technical Evangelist", label: "Technical Evangelist" },
+            { value: "Technical Writer", label: "Technical Writer" }
         ]
     },
     {
         label: "Sales & Related", options: [
-            { value: "tech_sales", label: "Sales" },
-            { value: "tech_account_manager", label: "Account Manager" },
-            { value: "tech_customer_success_manager", label: "Customer Success Manager" }
+            { value: "Sales", label: "Sales" },
+            { value: "Account Manager", label: "Account Manager" },
+            { value: "Customer Success Manager", label: "Customer Success Manager" }
         ]
     },
     {
         label: "Recruitment", options: [
-            { value: "tech_recruiter", label: "Tech Recruiter" },
-            { value: "tech_sourcer", label: "Tech Sourcer" },
-            { value: "exec_recruiter", label: "Executive Recruiter" }
+            { value: "Tech Recruiter", label: "Tech Recruiter" },
+            { value: "Tech Sourcer", label: "Tech Sourcer" },
+            { value: "Executive Recruiter", label: "Executive Recruiter" }
         ]
     },
-    { label: "Other", value: "other" }
+    { label: "Other", value: "Other" }
 ];

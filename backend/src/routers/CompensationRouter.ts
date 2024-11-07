@@ -6,6 +6,7 @@ import { addCompensationValidator } from "@/middlewares/validators/AddCompensati
 export default (router: Router, baseApiUrl: string = "/") => {
     const compensationRouter = Router();
 
+    compensationRouter.get("/", CompensationController.getCompensationsHandler)
     compensationRouter.post("/add", addCompensationValidator(), CompensationController.addHandler)
     compensationRouter.get("/form-options", CompensationController.formSelectOptionsHandler)
 

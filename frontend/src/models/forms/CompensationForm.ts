@@ -17,16 +17,16 @@ export type CompensationForm = {
     seniority: Seniority;
     contractType: ContractType;
     yearOfCompensation: number;
-    perks: string;
+    perks?: string;
 
     baseSalary: number;
-    signOnBonus: number;
-    annualBonus: number;
+    signOnBonus?: number;
+    annualBonus?: number;
     offerStatus: OfferStatus;
-    compensationDetails: string;
+    compensationDetails?: string;
 
 
-    highestEducation: HighestEducation;
-    gender: Gender;
-    otherInfo: string;
+    highestEducation?: HighestEducation;
+    gender?: Gender;
+    otherInfo?: string;
 }

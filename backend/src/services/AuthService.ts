@@ -7,6 +7,7 @@ import {
     User as FirebaseUser
 } from "firebase/auth";
 import { Response } from "express";
+import { FirebaseError } from "firebase/app";
 import { FirebaseAuthError, getAuth as firebaseAdminAuth } from "firebase-admin/auth";
 
 import { AppError } from "@/errors/AppError";
@@ -40,7 +41,7 @@ async function login(userLoginInfo: LoginRequestDto, response: Response): Promis
             accessToken
         };
     } catch (error) {
-        if (error instanceof FirebaseAuthError) {
+        if (error instanceof FirebaseAuthError || error instanceof FirebaseError) {
             if (error.code.includes("invalid-email")) {
                 throw new AppValidationError(400, "Login form errors", { "email": ["Invalid email"] });
             } else if (error.code.includes("invalid-credential") || error.code.includes("user-not-found")) {
@@ -71,7 +72,7 @@ async function register(userInfo: RegisterUserDto) {
             id: userCredentials.user.uid
         });
     } catch (error: any) {
-        if (error instanceof FirebaseAuthError) {
+        if (error instanceof FirebaseAuthError || error instanceof FirebaseError) {
             if (error.code.includes("invalid-email")) {
                 throw new AppValidationError(400, "Register form errors", { "email": ["Invalid email"] });
             } else if (error.code.includes("email-already-in-use")) {
@@ -103,7 +104,7 @@ async function registerOAuthUser(firebaseUser: FirebaseUser) {
             return updatedUser;
         }
     } catch (error: any) {
-        if (error instanceof FirebaseAuthError) {
+        if (error instanceof FirebaseAuthError || error instanceof FirebaseError) {
             if (error.code.includes("invalid-email")) {
                 throw new AppValidationError(400, "Register form errors", { "email": ["Invalid email"] });
             } else if (error.code.includes("email-already-in-use")) {

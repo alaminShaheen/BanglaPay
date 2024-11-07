@@ -1,4 +1,4 @@
 export enum OfferStatus {
-    NEW = "NEW",
-    EXISTING = "EXISTING",
+    NEW = "New",
+    EXISTING = "Existing",
 }

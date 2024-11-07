@@ -1,7 +1,7 @@
 export enum HighestEducation {
-    OTHER = "OTHER",
-    HIGH_SCHOOL = "HIGH_SCHOOL",
-    BACHELORS = "BACHELORS",
-    MASTERS = "MASTERS",
+    OTHER = "Other",
+    HIGH_SCHOOL = "High School",
+    BACHELORS = "Bachelors",
+    MASTERS = "Masters",
     PHD = "PHD"
 }

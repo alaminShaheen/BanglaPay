@@ -9,7 +9,6 @@ import { initFirebase } from "@/configs/firebaseConfig";
 import { errorHandler } from "@/middlewares/errorHandler";
 import { loggingHandler } from "@/middlewares/loggingHandler";
 import { CLIENT_ORIGIN, SERVER_PORT } from "@/configs/config";
-import { tableGenerator } from "@/utils/tableGenerator";
 
 const app = express();
 app.use(cors({ origin: CLIENT_ORIGIN }));

@@ -5,13 +5,26 @@ import { getDatabaseInstance } from "../database";
 import { Compensation } from "@/models/Compensation";
 import { DATABASE_CONSTANTS } from "@/constants/databaseConstants";
 import { AddCompensationRequestDto } from "@/models/dtos/AddCompensationRequestDto";
+import { JOB_FAMILY } from "@/constants/selectOptions/JOB_FAMILY";
+import { SelectOption } from "@/models/SelectOption";
 
 
 async function createCompensation(compensation: AddCompensationRequestDto) {
     try {
         const compensationTable = await getCompensationTable();
 
-        const compensationWithId: Compensation = { id: uuidv4(), ...compensation };
+        const jobFamilies = JOB_FAMILY.reduce((values, currentValue) => {
+            if ("options" in currentValue && Array.isArray(currentValue.options)) {
+                return values.concat(currentValue.options);
+            } else {
+                values.push(currentValue as SelectOption<string>);
+            }
+            return values;
+        }, [] as SelectOption<string>[]);
+
+        const jobFocus = jobFamilies.find(jobFamily => jobFamily.value === compensation.jobFocus)!.label;
+
+        const compensationWithId: Compensation = { id: uuidv4(), ...compensation, jobFocus };
         const compensationRecord: GoogleSpreadsheetRow<Compensation> = await compensationTable.addRow(compensationWithId);
         return serializeCompensationToJson(compensationRecord) as Compensation;
     } catch (error: any) {
@@ -23,7 +36,7 @@ async function getCompensationTable() {
     try {
         const databaseInstance = getDatabaseInstance();
         await databaseInstance.loadInfo();
-        return databaseInstance.sheetsByTitle[DATABASE_CONSTANTS.COMPANIES_TABLE];
+        return databaseInstance.sheetsByTitle[DATABASE_CONSTANTS.COMPENSATION_TABLE];
     } catch (error) {
         logging.error(error);
         throw error;
@@ -131,5 +144,6 @@ export const CompensationRepository = {
     createCompensation,
     getCompensation,
     getCompensations,
-    updateCompensation
+    updateCompensation,
+    getCompensationTable
 };
