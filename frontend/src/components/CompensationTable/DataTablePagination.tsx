@@ -16,7 +16,6 @@ export function DataTablePagination<TData>(props: DataTablePaginationProps<TData
     const startRow = pageIndex * pageSize + 1;
     const endRow = Math.min((pageIndex + 1) * pageSize, totalRows);
 
-    console.log(`Showing ${startRow}-${endRow} of ${totalRows}`);
     return (
         <div className="flex items-center justify-between px-2 mt-4">
             <div className="flex-1 text-sm">
