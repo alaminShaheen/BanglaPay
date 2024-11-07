@@ -12,7 +12,7 @@ import { toastDateFormat } from "@/lib/utils";
 import IntrinsicAttributes = JSX.IntrinsicAttributes;
 import { RefreshCcw } from "lucide-react";
 
-export function Protected<T extends IntrinsicAttributes>(Page: ComponentType<T>): ComponentType<T> {
+export function Protected<T extends object>(Page: ComponentType<T>): ComponentType<T> {
     const PageWithAuth = (props: T) => {
         const { authenticated, appLoading } = useAuthContext();
         const router = useRouter();

@@ -13,11 +13,11 @@ import React, { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DataTablePagination } from "@/components/CompensationTable/DataTablePagination";
 import { Compensation } from "@/models/Compensation";
 import CompensationDetails from "@/components/CompensationTable/CompensationDetails";
+import { DataTablePagination } from "@/components/CompensationTable/DataTablePagination";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface DataTableProps<TValue> {
     columns: ColumnDef<Compensation, TValue>[];
@@ -46,12 +46,12 @@ export function DataTable<TValue>(props: DataTableProps<TValue>) {
         <div>
             <div className="rounded-md border bg-background">
                 <Table>
-                    <TableHeader>
+                    <TableHeader className="bg-primary">
                         {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
+                            <TableRow key={headerGroup.id} className="hover:bg-primary">
                                 {headerGroup.headers.map((header) => {
                                     return (
-                                        <TableHead key={header.id} className="font-bold text-primary">
+                                        <TableHead key={header.id} className="font-bold text-primary-foreground">
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
@@ -98,11 +98,11 @@ export function DataTable<TValue>(props: DataTableProps<TValue>) {
                                                                     cell.column.id === "id" ? (
                                                                         compensationExpanded.has(rowIndex) ?
                                                                             <ChevronUp
-                                                                                className="text-primary cursor-pointer"
+                                                                                className="dark:text-primary cursor-pointer"
                                                                                 size={20} />
                                                                             :
                                                                             <ChevronDown
-                                                                                className="text-primary cursor-pointer"
+                                                                                className="dark:text-primary cursor-pointer"
                                                                                 size={20} />
                                                                     ) : flexRender(cell.column.columnDef.cell, cell.getContext())
                                                                 }

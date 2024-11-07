@@ -30,4 +30,5 @@ export type Compensation = {
     highestEducation?: HighestEducation;
     gender?: Gender;
     otherInfo?: string;
+    addedAt: string;
 }

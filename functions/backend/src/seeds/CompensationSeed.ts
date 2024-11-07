@@ -65,4 +65,4 @@ export async function CompensationSeed(recordLength: number) {
 }
 
 initDatabase();
-void CompensationSeed(23);
+void CompensationSeed(99);

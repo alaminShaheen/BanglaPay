@@ -24,7 +24,11 @@ async function createCompensation(compensation: AddCompensationRequestDto) {
 
         const jobFocus = jobFamilies.find(jobFamily => jobFamily.value === compensation.jobFocus)!.label;
 
-        const compensationWithId: Compensation = { id: uuidv4(), ...compensation, jobFocus };
+        const compensationWithId: Compensation = {
+            id: uuidv4(),
+            addedAt: new Date().toISOString(), ...compensation,
+            jobFocus
+        };
         const compensationRecord: GoogleSpreadsheetRow<Compensation> = await compensationTable.addRow(compensationWithId);
         return serializeCompensationToJson(compensationRecord) as Compensation;
     } catch (error: any) {
@@ -66,11 +70,13 @@ async function getCompensation(compensationId: string) {
 
 async function getCompensations(): Promise<Compensation[]> {
     try {
-        const companiesTable = await getCompensationTable();
+        const compensationsTable = await getCompensationTable();
 
-        const companyRows = await companiesTable.getRows<Compensation>();
+        const compensationRows = await compensationsTable.getRows<Compensation>();
 
-        return serializeCompensationToJson(companyRows) as Compensation[];
+        const unsortedCompensations = serializeCompensationToJson(compensationRows) as Compensation[];
+
+        return unsortedCompensations.sort((compensationA, compensationB) => new Date(compensationB.addedAt).getTime() - new Date(compensationA.addedAt).getTime());
     } catch (error: any) {
         throw error;
     }
@@ -97,7 +103,8 @@ function serializeCompensationToJson(compensationInfo: GoogleSpreadsheetRow<Comp
             compensationDetails: compensation.get("compensationDetails"),
             highestEducation: compensation.get("highestEducation"),
             gender: compensation.get("gender"),
-            otherInfo: compensation.get("otherInfo")
+            otherInfo: compensation.get("otherInfo"),
+            addedAt: compensation.get("addedAt")
         }));
     } else return {
         id: compensationInfo.get("id"),
@@ -118,7 +125,8 @@ function serializeCompensationToJson(compensationInfo: GoogleSpreadsheetRow<Comp
         compensationDetails: compensationInfo.get("compensationDetails"),
         highestEducation: compensationInfo.get("highestEducation"),
         gender: compensationInfo.get("gender"),
-        otherInfo: compensationInfo.get("otherInfo")
+        otherInfo: compensationInfo.get("otherInfo"),
+        addedAt: compensationInfo.get("addedAt")
     };
 }
 

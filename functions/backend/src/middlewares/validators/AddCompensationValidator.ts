@@ -40,7 +40,6 @@ export function addCompensationValidator() {
                 }
             }),
         body("yearsOfExperience" as keyof AddCompensationRequestDto)
-            .customSanitizer((value: string) => value.trim())
             .isInt({ min: 0 }).withMessage("Years of experience must be a positive integer")
             .notEmpty().withMessage("yearsOfExperience is required"),
         body("seniority" as keyof AddCompensationRequestDto)
@@ -60,22 +59,18 @@ export function addCompensationValidator() {
                 }
             }),
         body("yearOfCompensation" as keyof AddCompensationRequestDto)
-            .customSanitizer((value: string) => value.trim())
             .isInt().withMessage("Year of compensation must be a positive integer")
             .notEmpty().withMessage("Year of compensation is required"),
         body("perks" as keyof AddCompensationRequestDto)
             .customSanitizer((value: string) => value.trim())
             .optional(),
         body("baseSalary" as keyof AddCompensationRequestDto)
-            .customSanitizer((value: string) => value.trim())
             .isInt({ min: 1 }).withMessage("Base salary must be a positive integer")
             .notEmpty().withMessage("Base salary is required"),
         body("signOnBonus" as keyof AddCompensationRequestDto)
-            .customSanitizer((value: string) => value.trim())
             .optional()
             .isInt({ min: 0 }).withMessage("Sign on bonus must be a positive integer"),
         body("annualBonus" as keyof AddCompensationRequestDto)
-            .customSanitizer((value: string) => value.trim())
             .optional()
             .isInt({ min: 0 }).withMessage("Annual bonus must be a positive integer"),
         body("offerStatus" as keyof AddCompensationRequestDto)
