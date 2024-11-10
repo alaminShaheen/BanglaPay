@@ -44,9 +44,9 @@ export function DataTable<TValue>(props: DataTableProps<TValue>) {
 
     return (
         <div>
-            <div className="rounded-md border bg-background">
-                <Table>
-                    <TableHeader className="bg-primary">
+            <div className="border bg-background rounded-md ">
+                <Table className="rounded-md">
+                    <TableHeader className="bg-primary ">
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id} className="hover:bg-primary">
                                 {headerGroup.headers.map((header) => {

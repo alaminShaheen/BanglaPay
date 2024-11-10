@@ -13,8 +13,15 @@ const CompensationDetails = (props: CompensationDetailsProps) => {
     const { compensation } = props;
 
     const calculateTotalCompensation = useCallback((base: number, annualBonus?: number, signOnBonus?: number) => {
-        return Number(base) + Number(annualBonus || 0) + Number(signOnBonus || 0);
+        return Number(base * 12) + Number(annualBonus || 0) + Number(signOnBonus || 0);
     }, []);
+
+    const annualSalary = new Intl.NumberFormat("en-US", {}).format(compensation.baseSalary * 12);
+    const annualBonus = new Intl.NumberFormat("en-US", {}).format(compensation.annualBonus || 0);
+    const signOnBonus = new Intl.NumberFormat("en-US", {}).format(compensation.signOnBonus || 0);
+    const total = new Intl.NumberFormat("en-US", {}).format(
+        calculateTotalCompensation(compensation.baseSalary, compensation.annualBonus, compensation.signOnBonus)
+    );
 
     return (
         <div className="flex flex-col md:flex-row gap-4 justify-between">
@@ -73,16 +80,16 @@ const CompensationDetails = (props: CompensationDetailsProps) => {
             <div className="flex flex-col justify-center items-center mt-4 mx-auto md:mx-4 shrink-0">
                 <div className="flex gap-4">
                     <div className="flex flex-col text-left font-bold">
-                        <span>Base Salary:</span>
+                        <span>Annual Salary:</span>
                         <span>Annual Bonus:</span>
                         <span>Sign-on Bonus:</span>
                     </div>
                     <div className="flex flex-col">
                             <span className="text-left">
-                                {"\u09F3"}{compensation.baseSalary}
+                                {"\u09F3"}{annualSalary}
                             </span>
-                        <span className="text-left">{"\u09F3"}{compensation.annualBonus || 0}</span>
-                        <span className="text-left">{"\u09F3"}{compensation.signOnBonus || 0}</span>
+                        <span className="text-left">{"\u09F3"}{annualBonus}</span>
+                        <span className="text-left">{"\u09F3"}{signOnBonus}</span>
                     </div>
                 </div>
                 <Separator className="my-2 h-0.5 dark:bg-white bg-black" />
@@ -93,7 +100,7 @@ const CompensationDetails = (props: CompensationDetailsProps) => {
                     <div className="flex flex-col text-right">
                             <span>
                                 {"\u09F3"}
-                                {calculateTotalCompensation(compensation.baseSalary, compensation.annualBonus, compensation.signOnBonus)}
+                                {total}
                             </span>
                     </div>
                 </div>

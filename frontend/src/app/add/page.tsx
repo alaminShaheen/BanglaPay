@@ -31,6 +31,7 @@ import { useFetchCompaniesQuery } from "@/hooks/queries/useFetchCompaniesQuery";
 import { useFetchFormOptionsQuery } from "@/hooks/queries/useFetchFormOptionsQuery";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAddCompensationMutation } from "@/hooks/mutations/useAddCompensationMutation";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const Add = () => {
     const {
@@ -97,7 +98,7 @@ const Add = () => {
         addCompanyMutation(companyName);
     }, [addCompanyMutation]);
 
-    const appLoading = useMemo(() => {
+    const isLoading = useMemo(() => {
         return isAddingCompensation || isAddingCompany || isFetchingCompanyData || isFetchingFormOptions;
     }, [isAddingCompensation, isAddingCompany, isFetchingCompanyData, isFetchingFormOptions]);
 
@@ -114,7 +115,7 @@ const Add = () => {
             <Button
                 variant="linkHover2"
                 className="p-0 dark:text-primary "
-                disabled={appLoading}
+                disabled={isLoading}
             >
                 <Link href={ROUTES.SALARIES} className="flex items-center">
                     <ArrowBigLeft /> Back
@@ -346,7 +347,7 @@ const Add = () => {
                             htmlFor="baseSalary"
                             className={cn({ "text-destructive": errors.baseSalary })}
                         >
-                            Base Salary
+                            Base Salary (per month)
                         </Label>
                         <Input
                             className={cn("border mt-2", {
@@ -543,7 +544,7 @@ const Add = () => {
                 <Button
                     type="submit"
                     className="mt-2"
-                    disabled={appLoading}
+                    disabled={isLoading}
                 >
                     Submit
                 </Button>

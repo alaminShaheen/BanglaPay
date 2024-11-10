@@ -1,32 +1,26 @@
 "use client";
 
-import React, { Fragment, useCallback } from "react";
-import { useTheme } from "next-themes";
-import { CircleUserRound, KeySquare, LogOut, Menu, Moon, Sun } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { useAuthContext } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { signOut } from "firebase/auth";
-import { auth } from "@/firebaseConfig";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
+import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
+import { useMediaQuery } from "usehooks-ts";
+import React, { useCallback } from "react";
+import { KeySquare, LogOut, Moon, Sun } from "lucide-react";
+
+import { auth } from "@/firebaseConfig";
 import { ROUTES } from "@/constants/Routes";
+import { Button } from "@/components/ui/button";
+import { useAuthContext } from "@/contexts/AuthContext";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
+import { toast } from "sonner";
 
 const Navbar = () => {
     const { resolvedTheme, setTheme } = useTheme();
     const { authenticated } = useAuthContext();
     const router = useRouter();
-    const {handleErrors} = useErrorHandler();
+    const { handleErrors } = useErrorHandler();
+    const isTabView = useMediaQuery('(min-width: 768px)')
 
 
     const onThemeChange = useCallback(() => {
@@ -46,10 +40,14 @@ const Navbar = () => {
         <nav className="p-6 flex justify-between items-center bg-background">
             <div>
                 <h1 className="text-2xl font-bold md:block hidden">
-                    🅱🅰🅽🅶🅻🅰🅿🅰🆈
+                    <Link href={ROUTES.SALARIES}>
+                        🅱🅰🅽🅶🅻🅰🅿🅰🆈
+                    </Link>
                 </h1>
                 <h1 className="text-2xl font-bold  md:hidden block">
-                    🅱🅿
+                    <Link href={ROUTES.SALARIES}>
+                        🅱🅿
+                    </Link>
                 </h1>
             </div>
             <div className="flex items-center gap-x-1 md:gap-x-4">
@@ -57,55 +55,22 @@ const Navbar = () => {
                         title={resolvedTheme === "dark" ? "Toggle dark mode" : "Toggle light mode"}>
                     {resolvedTheme === "dark" ? <Sun /> : <Moon />}
                 </Button>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild className="block md:hidden">
-                        <Button variant="ghost" size="icon" className="flex justify-center items-center" title="Menu">
-                            <Menu />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56">
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem className="cursor-pointer">
-                                {authenticated ? (
-                                    <Link href={"/account"} className="flex items-center gap-2" title="Account">
-                                        <CircleUserRound size="14" />
-                                        Account
-                                    </Link>
-
-                                ) : (
-                                    <Link href="/login" className="flex items-center gap-2" title="Login">
-                                        <KeySquare size="14" />
-                                        Login
-                                    </Link>
-                                )}
-                                <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                        {
-                            authenticated && (
-                                <Fragment>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem className="cursor-pointer">
-                                        Logout
-                                    </DropdownMenuItem>
-                                </Fragment>
-                            )
-                        }
-                    </DropdownMenuContent>
-                </DropdownMenu>
-                <div className="hidden md:flex items-center gap-x-4">
-                    <Link href={authenticated ? "/account" : "/login"}>
-                        <Button variant="ghost">
-                            <KeySquare />
-                            {authenticated ? "Account" : "Login"}
-                        </Button>
-                    </Link>
-                    {/*  TODO: Move to "Account" page  */}
+                <div className="flex items-center gap-x-4">
+                    {!authenticated && (
+                        <Link href={ROUTES.LOGIN}>
+                            <Button variant="ghost">
+                                <KeySquare />
+                                Login
+                            </Button>
+                        </Link>
+                    )}
                     {
                         authenticated &&
-                        <Button variant="destructive" onClick={onLogout} title="Logout">
-                            <LogOut />
-                            Logout
+                        <Button variant={isTabView ? "destructive" : "ghost"} onClick={onLogout} title="Logout">
+                            <LogOut className="text-destructive md:text-white" />
+                            <span className="hidden md:inline">
+                                Logout
+                            </span>
                         </Button>
                     }
                 </div>

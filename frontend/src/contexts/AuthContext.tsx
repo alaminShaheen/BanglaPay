@@ -1,9 +1,11 @@
 "use client";
 
+import { usePathname, useRouter } from "next/navigation";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import { auth } from "@/firebaseConfig";
+import { ROUTES } from "@/constants/Routes";
 import { addAxiosAuthHeader } from "@/lib/axiosInstance";
 
 type AuthContextType = {
@@ -33,6 +35,8 @@ export const AuthContextProvider = (props: AppContextProviderProps) => {
     const authFetchCountRef = useRef<number>(1);
     const [authenticated, setAuthenticated] = useState(APP_CONTEXT_DEFAULT_VALUES.authenticated);
     const [accessToken, setAccessToken] = useState("");
+    const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -54,6 +58,13 @@ export const AuthContextProvider = (props: AppContextProviderProps) => {
             setUser(user);
         }
     }, []);
+
+    useEffect(() => {
+        const authRoutes = [ROUTES.LOGIN, ROUTES.REGISTER, ROUTES.PASSWORD_RESET];
+        if (authenticated && !appLoading && authRoutes.includes(pathname)) {
+            router.back();
+        }
+    }, [pathname, authenticated, appLoading, router]);
 
     return (
         <AuthContext.Provider

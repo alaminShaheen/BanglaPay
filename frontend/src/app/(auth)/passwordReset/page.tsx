@@ -32,7 +32,7 @@ const PasswordReset = () => {
             description: toastDateFormat(new Date()),
             action: {
                 label: "Close",
-                onClick: () => null,
+                onClick: () => null
             }
         });
         router.push(ROUTES.LOGIN);

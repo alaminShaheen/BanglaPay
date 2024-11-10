@@ -7,7 +7,7 @@ import { FaGithub } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { AxiosResponse } from "axios";
 import { Eye, EyeOff, RefreshCcw } from "lucide-react";
-import React, { Fragment, useCallback, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { getAuth, GithubAuthProvider, GoogleAuthProvider, signInWithCustomToken, signInWithPopup } from "firebase/auth";
 
 import { cn } from "@/lib/utils";
