@@ -4,7 +4,6 @@ import { ReactNode } from "react";
 import "./globals.css";
 import ProviderWrapper from "@/app/ProviderWrapper";
 import { Metadata } from "next";
-import Head from "next/head";
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",

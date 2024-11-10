@@ -347,7 +347,7 @@ const Add = () => {
                             htmlFor="baseSalary"
                             className={cn({ "text-destructive": errors.baseSalary })}
                         >
-                            Base Salary
+                            Base Salary (per month)
                         </Label>
                         <Input
                             className={cn("border mt-2", {
