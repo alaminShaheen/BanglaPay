@@ -5,12 +5,13 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { RefreshCcw } from "lucide-react";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/constants/Routes";
 import { Button } from "@/components/ui/button";
+import { useAuthContext } from "@/contexts/AuthContext";
 import { PasswordResetForm } from "@/models/forms/PasswordResetForm";
 import { cn, toastDateFormat } from "@/lib/utils";
 import { usePasswordResetMutation } from "@/hooks/mutations/usePasswordResetMutation";

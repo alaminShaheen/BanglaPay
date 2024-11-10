@@ -1,16 +1,14 @@
 "use client"
 
-import { JSX } from "react/jsx-runtime";
 import { toast } from "sonner";
-import React, { ComponentType } from "react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { RefreshCcw } from "lucide-react";
+import React, { ComponentType } from "react";
 
 import { ROUTES } from "@/constants/Routes";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { toastDateFormat } from "@/lib/utils";
-import IntrinsicAttributes = JSX.IntrinsicAttributes;
-import { RefreshCcw } from "lucide-react";
 
 export function Protected<T extends object>(Page: ComponentType<T>): ComponentType<T> {
     const PageWithAuth = (props: T) => {
