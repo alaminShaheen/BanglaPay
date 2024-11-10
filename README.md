@@ -1,7 +1,7 @@
 # 🄱🄰🄽🄶🄻🄰🄿🄰🅈
   \- Get payed, not played
 
-BanglaPay is a fullstack application for viewing and posting salary compensations from Bangladeshi tech companies anonymously. 
+[BanglaPay](https://bangla-pay-f4de.vercel.app/) is a fullstack application for viewing and posting salary compensations from Bangladeshi tech companies anonymously. 
 
 ## :pancakes: Technology Stack
 
