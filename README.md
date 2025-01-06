@@ -21,7 +21,7 @@
 
 
 ## :european_castle: Architecture
-This project is a monorepo where the frontend and backend code reside in the same repository. The Nextjs frontend communicates with the `Nodejs` backend. `Google Sheets` has been used as the backend and authentications is implemented using `Firebase Authentication`. The backend is deployed using Firebase functions, which is basically a serverless framework that lets us automatically run backend code in response to events triggered by HTTPS requests. The frontend is deployed using `Vercel hosting`.
+This project is a monorepo where the frontend and backend code reside in the same repository. The Nextjs frontend communicates with the `Nodejs` backend. `Google Sheets` has been used as the database and authentications is implemented using `Firebase Authentication`. The backend is deployed using Firebase functions, which is basically a serverless framework that lets us automatically run backend code in response to events triggered by HTTPS requests. The frontend is deployed using `Vercel hosting`.
 
 ### Frontend
 <img width="500" alt="Frontend code structure" src="https://github.com/user-attachments/assets/bb17621a-12d3-45ee-9ec4-250714849f77">
